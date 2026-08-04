@@ -1,0 +1,144 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account info and tenant association on StoreSage",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The visual name of the user"
+        },
+        "role": {
+          "type": "string",
+          "description": "User's role such as admin or staff"
+        },
+        "store_id": {
+          "type": "string",
+          "description": "ID of the store/tenant the user belongs to"
+        }
+      },
+      "required": ["name", "role", "store_id"]
+    },
+    "Tenant": {
+      "title": "Tenant Profile",
+      "description": "Tenant subscription status mapped by user UID",
+      "type": "object",
+      "properties": {
+        "subscriptionExpiresAt": {
+          "type": "string",
+          "description": "ISO date string when the subscription expires"
+        },
+        "status": {
+          "type": "string",
+          "description": "Tenant active subscription status"
+        }
+      },
+      "required": ["subscriptionExpiresAt", "status"]
+    },
+    "Store": {
+      "title": "Store (Tenant)",
+      "description": "Tenant store information and subscription status",
+      "type": "object",
+      "properties": {
+        "store_name": {
+          "type": "string",
+          "description": "Name of the digital store"
+        },
+        "status_langganan": {
+          "type": "string",
+          "description": "SaaS Subscription status, e.g., active, free, trialing, suspended"
+        }
+      },
+      "required": ["store_name", "status_langganan"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Stock item within a particular store",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the inventory product"
+        },
+        "sku": {
+          "type": "string",
+          "description": "Stock Keeping Unit unique barcode/ID identifier"
+        },
+        "stock": {
+          "type": "integer",
+          "description": "Current quantity in stock"
+        },
+        "stock_minimum": {
+          "type": "integer",
+          "description": "Threshold where warning displays when stock drops to or below this"
+        },
+        "price": {
+          "type": "number",
+          "description": "Price per unit of product"
+        }
+      },
+      "required": ["name", "sku", "stock", "stock_minimum", "price"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Cash flow transaction record within a particular store",
+      "type": "object",
+      "properties": {
+        "tenantId": {
+          "type": "string",
+          "description": "ID of the store/tenant the transaction belongs to"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of cash transaction: income or expense",
+          "enum": ["income", "expense"]
+        },
+        "amount": {
+          "type": "number",
+          "description": "The amount in transaction"
+        },
+        "description": {
+          "type": "string",
+          "description": "Details regarding the transaction"
+        },
+        "productId": {
+          "type": "string",
+          "description": "Optional lookup to corresponding product"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Optional quantity transacted"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp of transaction"
+        }
+      },
+      "required": ["tenantId", "type", "amount", "description", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/tenants/{tenantId}": {
+      "schema": "Tenant",
+      "description": "Tenant subscription record mapped by user UID."
+    },
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "Individual member user profile associating them with a dedicated tenant (store_id)."
+    },
+    "/stores/{storeId}": {
+      "schema": "Store",
+      "description": "Isolated store master tenant document containing settings and status."
+    },
+    "/stores/{storeId}/products/{productId}": {
+      "schema": "Product",
+      "description": "Siloed collection of products associated with a single Tenant Store. Secured via user's corresponding store_id match."
+    },
+    "/stores/{storeId}/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Siloed collection of sales/expense transactions. Secured via user's corresponding store_id match."
+    }
+  }
+}

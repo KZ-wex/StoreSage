@@ -1,0 +1,6 @@
+{
+  "name": "StoreSage Multi-Tenant Inventory",
+  "description": "Sistem Manajemen Inventaris SaaS Multi-Tenant untuk UMKM, aman dan terisolasi menggunakan Firebase Auth dan Firestore.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,131 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 1. Global Safety Net: Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Access control for connection testing
+    match /test/{docId} {
+      allow get: if true;
+    }
+
+    // 2. Reusable global validation help systems
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function getUserRole() {
+      return isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : 'guest';
+    }
+
+    function belongsToStore(storeId) {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.store_id == storeId || isSuperAdminEmail());
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn()
+        && getUserRole() == 'super-admin';
+    }
+
+    function isSuperAdminEmail() {
+      return isSignedIn() && (
+        request.auth.uid == 'r0oBVIdDc2UwtFcbLCbzIKj7x3j1' ||
+        (request.auth.token != null && request.auth.token.email != null && (
+          request.auth.token.email == 'admin@storesage.com' ||
+          request.auth.token.email == 'ridhowicaksono@storesage.com' ||
+          request.auth.token.email == 'ridhowicaksono2604@gmail.com'
+        ))
+      );
+    }
+
+    // Entity Model Schema Validators
+    function isValidUser(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+        && data.role is string && (data.role == 'admin' || data.role == 'staff' || data.role == 'owner' || data.role == 'super-admin' || data.role == 'kasir' || data.role == 'tenant_admin')
+        && data.store_id is string && data.store_id.size() > 0 && data.store_id.size() <= 128;
+    }
+
+    function isValidStore(data) {
+      return data.store_name is string && data.store_name.size() > 0 && data.store_name.size() <= 100
+        && data.status_langganan is string && (data.status_langganan == 'active' || data.status_langganan == 'free' || data.status_langganan == 'trial' || data.status_langganan == 'suspended')
+        && (!data.keys().hasAll(['billing_period_end']) || (data.billing_period_end is string && data.billing_period_end.size() <= 100));
+    }
+
+    function isValidProduct(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.sku is string && data.sku.size() > 0 && data.sku.size() <= 50
+        && (data.stock is int || data.stock is float) && data.stock >= 0
+        && (data.stock_minimum is int || data.stock_minimum is float) && data.stock_minimum >= 0
+        // Price can be integer or float
+        && (data.price is int || data.price is float) && data.price >= 0.0;
+    }
+
+    // Tenants Collection Match Rules
+    match /tenants/{tenantId} {
+      allow get: if isSignedIn() && (request.auth.uid == tenantId || isSuperAdminEmail() || isSuperAdmin());
+      allow list: if isSuperAdminEmail() || isSuperAdmin();
+      allow create, update: if isSignedIn() && (request.auth.uid == tenantId || isSuperAdminEmail() || isSuperAdmin());
+      allow delete: if isSuperAdminEmail() || isSuperAdmin();
+    }
+
+    // 3. User Accounts Collection Match Rules
+    match /users/{uid} {
+      allow get: if isSignedIn() && (request.auth.uid == uid || isSuperAdminEmail() || isSuperAdmin());
+      allow list: if isSuperAdminEmail() || isSuperAdmin();
+      
+      // Create user record on initial signup or by super-admin
+      allow create: if isSignedIn() && (request.auth.uid == uid || isSuperAdminEmail() || isSuperAdmin()) && isValidUser(request.resource.data);
+      
+      // Update account parameters, store_id & role are immutable for standard users but can be modified by super-admin
+      allow update: if isSignedIn() && (
+        isSuperAdminEmail()
+        || isSuperAdmin()
+        || (request.auth.uid == uid && isValidUser(request.resource.data)
+          && request.resource.data.store_id == resource.data.store_id
+          && request.resource.data.role == resource.data.role)
+      );
+
+      // Support cleanup
+      allow delete: if isSuperAdminEmail() || isSuperAdmin();
+    }
+
+    // 4. Stores Tenant Collection Match Rules
+    match /stores/{storeId} {
+      allow get: if isSignedIn() && (isSuperAdminEmail() || isSuperAdmin() || belongsToStore(storeId));
+      allow list: if isSuperAdminEmail() || isSuperAdmin();
+      
+      // Allow creating an initial tenant store
+      allow create: if isSignedIn() && isValidStore(request.resource.data);
+      
+      // Protect operational tenant metadata from staff edits
+      allow update: if isSuperAdminEmail() || isSuperAdmin() || (belongsToStore(storeId) && (getUserRole() == 'admin' || getUserRole() == 'tenant_admin' || getUserRole() == 'owner') && isValidStore(request.resource.data));
+
+      // Support tenant destruction
+      allow delete: if isSuperAdminEmail() || isSuperAdmin();
+    }
+
+    // 5. Products Sub-Collection Match Rules (Fully isolated per store)
+    match /stores/{storeId}/products/{productId} {
+      allow get, list: if belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin();
+      
+      allow create: if (belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin()) && isValidProduct(request.resource.data);
+      
+      allow update: if (belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin()) && isValidProduct(request.resource.data);
+      
+      allow delete: if belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin();
+    }
+
+    // 6. Transactions Sub-Collection Match Rules (Fully isolated per store)
+    match /stores/{storeId}/transactions/{transactionId} {
+      allow get, list: if belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin();
+      allow create, update, delete: if belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin();
+    }
+  }
+}
