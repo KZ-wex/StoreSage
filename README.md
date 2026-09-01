@@ -49,9 +49,3 @@ Bagi pengelola pusat / administrator sistem:
    * `Perpanjang +30 Hari` : Menambah masa aktif toko 30 hari secara instan.
 
 ---
-
-## 🔑 Kredensial & Akses Cepat
-
-* **Super Admin Email**: `admin@storesage.com` / `ridhowicaksono2604@gmail.com`
-* **Passkey Panel Super Admin**: `storesageadmin2026`
-* **Pilihan Uji Coba Demo**: Pada halaman login, tersedia tombol cepat untuk mencoba akun dengan status langganan aktif maupun akun dalam kondisi masa tenggang H-3.
