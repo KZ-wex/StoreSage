@@ -14,6 +14,7 @@ import {
 import { doc, updateDoc } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "../firebase";
 import { StoreDoc, UserDoc } from "../types";
+import StoreSageLogo from "./StoreSageLogo";
 
 interface BillingExpiredViewProps {
   storeData: StoreDoc | null;
@@ -137,16 +138,12 @@ export default function BillingExpiredView({
       <div className="w-full max-w-xl bg-slate-900/90 border border-slate-800/80 rounded-3xl overflow-hidden shadow-2xl flex flex-col p-6 md:p-8 backdrop-blur-md relative z-10" id="billing-frame">
         {/* Upper visual alert icon branding */}
         <div className="flex flex-col items-center text-center pb-6 border-b border-slate-800/60" id="billing-upper-brand">
-          <div className={`h-16 w-16 mb-4 rounded-2xl flex items-center justify-center ${
-            subConfig.colorHex === "red" 
-              ? "bg-rose-500/10 text-rose-500 ring-4 ring-rose-500/5 animate-pulse" 
-              : "bg-amber-500/10 text-amber-500 ring-4 ring-amber-500/5 animate-pulse"
-          }`}>
-            <ShieldAlert className="h-9 w-9" />
+          <div className="mb-4 flex items-center justify-center">
+            <StoreSageLogo size={60} withGlow={true} />
           </div>
           
           <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase font-mono mb-1">
-            SaaS multi-tenant billing sentinel
+            StoreSage Multi-Tenant Sentinel
           </span>
           <h2 className="text-xl md:text-2xl font-extrabold text-white tracking-tight leading-snug">
             {subConfig.title}

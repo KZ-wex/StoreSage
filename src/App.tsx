@@ -8,6 +8,7 @@ import ProductsView from "./components/ProductsView";
 import StoresView from "./components/StoresView";
 import BillingExpiredView from "./components/BillingExpiredView";
 import AdminCreateTenantView from "./components/AdminCreateTenantView";
+import StoreSageLogo from "./components/StoreSageLogo";
 import { 
   Building2, 
   Layers, 
@@ -189,13 +190,11 @@ function MainAppShell() {
         {/* Brand Banner */}
         <div className="p-6 border-b border-[#2C2C2E] flex items-center justify-between shrink-0" id={`sidebar-logo-container-${isMobile ? 'm' : 'd'}`}>
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 bg-[#00E5FF] rounded-lg flex items-center justify-center shadow-sm">
-              <Briefcase className="h-5 w-5 text-black" />
-            </div>
+            <StoreSageLogo size={38} withGlow={true} />
             <div>
               <h1 className="text-lg font-bold tracking-[-0.03em] text-white flex items-center gap-1.5 font-sans">
                 StoreSage
-                <span className="text-[10px] py-0.5 px-1.5 bg-[#00E5FF]/20 text-[#00E5FF] font-bold uppercase rounded tracking-widest leading-none border border-[#00E5FF]/30">SaaS</span>
+                <span className="text-[10px] py-0.5 px-1.5 bg-blue-500/20 text-blue-400 font-bold uppercase rounded tracking-widest leading-none border border-blue-500/30">SaaS</span>
               </h1>
               <span className="text-[10px] text-[#8C8C8E] block font-medium mt-0.5">Sistem Inventaris Multi-Tenant</span>
             </div>
@@ -215,13 +214,13 @@ function MainAppShell() {
         {/* Selected Store / Tenant Context Indicator */}
         <div className="px-6 py-4 border-b border-[#2C2C2E] bg-[#121212] shrink-0" id={`tenant-scope-banner-${isMobile ? 'm' : 'd'}`}>
           <div className="p-2.5 bg-[#1E1E1E] rounded-[12px] border border-[#2C2C2E] flex items-center gap-3">
-            <div className="p-1.5 bg-[#00E5FF]/10 text-[#00E5FF] rounded-md">
+            <div className="p-1.5 bg-indigo-500/10 text-indigo-400 rounded-md border border-indigo-500/20">
               <Building2 className="h-4.5 w-4.5" />
             </div>
             <div className="min-w-0 flex-1">
-              <span className="text-[9px] uppercase tracking-wider text-[#8C8C8E] font-bold block">Lingkup Tenant Aktif</span>
+              <span className="text-[9px] uppercase tracking-wider text-[#8C8C8E] font-bold block">Toko Aktif</span>
               <span className="text-xs font-bold text-white truncate block mt-0.5">
-                {storeData?.store_name || "Mendaftarkan toko..."}
+                {storeData?.store_name || "Memuat Toko..."}
               </span>
             </div>
           </div>
@@ -234,17 +233,17 @@ function MainAppShell() {
               setActiveTab("dashboard");
               if (closeMobileMenu) closeMobileMenu();
             }}
-            className={`w-full p-2.5 font-medium text-sm rounded-[6px] flex items-center justify-between transition-all cursor-pointer ${
+            className={`w-full p-2.5 font-medium text-sm rounded-lg flex items-center justify-between transition-all cursor-pointer ${
               activeTab === "dashboard" 
-                ? "bg-[#00E5FF]/15 text-[#00E5FF] border border-[#00E5FF]/30" 
+                ? "bg-indigo-600/15 text-indigo-400 border border-indigo-500/30" 
                 : "text-[#B0B0B0] hover:text-white hover:bg-[#252525]"
             }`}
           >
             <div className="flex items-center gap-3">
               <Layers className="h-4.5 w-4.5" />
-              <span>Dashboard Inventaris</span>
+              <span>Dashboard Toko</span>
             </div>
-            <ChevronRight className={`h-4 w-4 transition-transform ${activeTab === "dashboard" ? "rotate-90 text-[#00E5FF]" : "text-[#B0B0B0]"}`} />
+            <ChevronRight className={`h-4 w-4 transition-transform ${activeTab === "dashboard" ? "rotate-90 text-indigo-400" : "text-[#8C8C8E]"}`} />
           </button>
 
           <button
@@ -252,17 +251,17 @@ function MainAppShell() {
               setActiveTab("products");
               if (closeMobileMenu) closeMobileMenu();
             }}
-            className={`w-full p-2.5 font-medium text-sm rounded-[6px] flex items-center justify-between transition-all cursor-pointer ${
+            className={`w-full p-2.5 font-medium text-sm rounded-lg flex items-center justify-between transition-all cursor-pointer ${
               activeTab === "products" 
-                ? "bg-[#00E5FF]/15 text-[#00E5FF] border border-[#00E5FF]/30" 
+                ? "bg-indigo-600/15 text-indigo-400 border border-indigo-500/30" 
                 : "text-[#B0B0B0] hover:text-white hover:bg-[#252525]"
             }`}
           >
             <div className="flex items-center gap-3">
               <Package className="h-4.5 w-4.5" />
-              <span>Kelola Katalog Produk</span>
+              <span>Daftar Produk Toko</span>
             </div>
-            <ChevronRight className={`h-4 w-4 transition-transform ${activeTab === "products" ? "rotate-90 text-[#00E5FF]" : "text-[#B0B0B0]"}`} />
+            <ChevronRight className={`h-4 w-4 transition-transform ${activeTab === "products" ? "rotate-90 text-indigo-400" : "text-[#8C8C8E]"}`} />
           </button>
 
           <button
@@ -270,37 +269,31 @@ function MainAppShell() {
               setActiveTab("store");
               if (closeMobileMenu) closeMobileMenu();
             }}
-            className={`w-full p-2.5 font-medium text-sm rounded-[6px] flex items-center justify-between transition-all cursor-pointer ${
+            className={`w-full p-2.5 font-medium text-sm rounded-lg flex items-center justify-between transition-all cursor-pointer ${
               activeTab === "store" 
-                ? "bg-[#00E5FF]/15 text-[#00E5FF] border border-[#00E5FF]/30" 
+                ? "bg-indigo-600/15 text-indigo-400 border border-indigo-500/30" 
                 : "text-[#B0B0B0] hover:text-white hover:bg-[#252525]"
             }`}
           >
             <div className="flex items-center gap-3">
               <Users className="h-4.5 w-4.5" />
-              <span>Konfigurasi UMKM</span>
+              <span>Profil & Pengaturan Toko</span>
             </div>
-            <ChevronRight className={`h-4 w-4 transition-transform ${activeTab === "store" ? "rotate-90 text-[#00E5FF]" : "text-[#B0B0B0]"}`} />
+            <ChevronRight className={`h-4 w-4 transition-transform ${activeTab === "store" ? "rotate-90 text-indigo-400" : "text-[#8C8C8E]"}`} />
           </button>
         </nav>
 
-        {/* Database Active Status and Quick logout bottom panel */}
-        <div className="p-4 border-t border-[#2C2C2E] flex flex-col gap-3 shrink-0" id={`sidebar-footer-${isMobile ? 'm' : 'd'}`}>
-          <div className="flex items-center gap-2 px-2.5 py-1.5 bg-[#1A3F3F]/35 border border-[#00E5FF]/20 text-[#00E5FF] rounded-[6px] text-[11px] font-mono">
-            <span className="w-1.5 h-1.5 bg-[#00E5FF] rounded-full animate-pulse shrink-0"></span>
-            <Database className="h-3.5 w-3.5 text-[#00E5FF]" />
-            <span className="truncate text-white">Silo-Tenant: Firestore Aktif</span>
-          </div>
-
+        {/* Quick logout bottom panel */}
+        <div className="p-4 border-t border-[#2C2C2E] flex flex-col gap-2 shrink-0" id={`sidebar-footer-${isMobile ? 'm' : 'd'}`}>
           <button
             onClick={() => {
               logout();
               if (closeMobileMenu) closeMobileMenu();
             }}
-            className="w-full p-2.5 bg-[#1E1E1E] hover:bg-rose-950/25 text-[#B0B0B0] hover:text-red-400 border border-[#2C2C2E] font-semibold text-xs rounded-[6px] flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="w-full p-2.5 bg-[#1E1E1E] hover:bg-rose-950/30 text-[#B0B0B0] hover:text-rose-400 border border-[#2C2C2E] hover:border-rose-800/40 font-semibold text-xs rounded-lg flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <LogOut className="h-4 w-4" />
-            <span>Keluar Sesi Tenant</span>
+            <span>Keluar Akun Toko</span>
           </button>
         </div>
       </div>
@@ -361,12 +354,12 @@ function MainAppShell() {
 
             <div className="truncate">
               <h2 className="text-lg md:text-xl font-bold font-sans text-white flex items-center gap-2 truncate">
-                {activeTab === "dashboard" && "Dashboard Pengawasan"}
+                {activeTab === "dashboard" && "Ringkasan Operasional Toko"}
                 {activeTab === "products" && "Manajemen Katalog Produk"}
-                {activeTab === "store" && "Informasi Tenant & Profil"}
+                {activeTab === "store" && "Profil & Pengaturan Toko"}
               </h2>
               <p className="text-xs text-[#8C8C8E] mt-0.5 truncate">
-                Selamat kembali, <strong className="text-white font-semibold">{userData?.name || "Member StoreSage"}</strong> ({(userData?.role === "admin" || userData?.role === "tenant_admin") ? "Pemilik UMKM" : "Staff Operasional"})
+                Selamat datang kembali, <strong className="text-white font-semibold">{userData?.name || "Pengguna"}</strong> ({(userData?.role === "admin" || userData?.role === "tenant_admin") ? "Pemilik Toko" : "Staff Operasional"})
               </p>
             </div>
           </div>
@@ -375,12 +368,12 @@ function MainAppShell() {
           <div className="flex items-center gap-3 text-sm shrink-0" id="user-context-banner">
             <div className="text-right hidden sm:block">
               <span className="font-bold text-white block max-w-[150px] truncate">{userData?.name || user?.email}</span>
-              <span className="text-[10px] text-[#00E5FF] uppercase font-bold tracking-wider mt-0.5 block">{userData?.role === "tenant_admin" ? "admin" : (userData?.role || "Staff")}</span>
+              <span className="text-[10px] text-indigo-400 uppercase font-bold tracking-wider mt-0.5 block">{(userData?.role === "admin" || userData?.role === "tenant_admin") ? "Pemilik Toko" : (userData?.role || "Staff")}</span>
             </div>
 
-            <div className="h-10 w-10 bg-[#252525] border border-[#2C2C2E] rounded-full flex items-center justify-center font-bold text-[#00E5FF] relative shadow-inner">
+            <div className="h-10 w-10 bg-indigo-950/40 border border-indigo-500/30 rounded-full flex items-center justify-center font-bold text-indigo-400 relative shadow-inner">
               {userData?.name?.substring(0, 2).toUpperCase() || "SS"}
-              <div className="absolute bottom-0 right-0 h-3 w-3 bg-[#32D74B] rounded-full border-2 border-[#1E1E1E]"></div>
+              <div className="absolute bottom-0 right-0 h-3 w-3 bg-emerald-500 rounded-full border-2 border-[#1E1E1E]"></div>
             </div>
           </div>
         </header>
@@ -396,17 +389,17 @@ function MainAppShell() {
                 <div className="space-y-1 font-sans">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-extrabold text-xs text-amber-400 uppercase tracking-wide">
-                      ⚠️ Peringatan Masa Tenggang Berlangganan (H-3)
+                      ⚠️ Peringatan Masa Aktif Paket (H-3)
                     </span>
                     <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold rounded-full border border-amber-500/30">
                       Sisa {warningMsg.remainingText}
                     </span>
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed font-normal">
-                    Masa aktif akun UMKM <strong className="text-white font-semibold">{warningMsg.email}</strong> dengan durasi <strong className="text-amber-300 font-semibold">{warningMsg.packageName}</strong> akan berakhir pada <span className="text-amber-200 font-mono">{warningMsg.expiryDateFormatted}</span>.
+                    Masa aktif akun toko <strong className="text-white font-semibold">{warningMsg.email}</strong> untuk <strong className="text-amber-300 font-semibold">{warningMsg.packageName}</strong> akan berakhir pada <span className="text-amber-200 font-mono">{warningMsg.expiryDateFormatted}</span>.
                   </p>
                   <p className="text-[11px] text-slate-400">
-                    Segera hubungi Administrator StoreSage untuk koordinasi perpanjangan paket agar akses kasir & data produk tidak terkunci.
+                    Segera hubungi Administrator StoreSage untuk perpanjangan paket agar layanan operasional toko tetap aktif tanpa gangguan.
                   </p>
                 </div>
               </div>
@@ -415,7 +408,7 @@ function MainAppShell() {
                   onClick={() => setActiveTab("store")}
                   className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
                 >
-                  <span>Cek Status Toko</span>
+                  <span>Cek Status Paket</span>
                 </button>
               </div>
             </div>
@@ -423,8 +416,8 @@ function MainAppShell() {
 
           {productsLoading ? (
             <div className="min-h-60 flex flex-col items-center justify-center space-y-2" id="sync-loading-spinner">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00E5FF]"></div>
-              <span className="text-[#8C8C8E] font-medium text-xs">Menyelaraskan database tenant Anda...</span>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
+              <span className="text-[#8C8C8E] font-medium text-xs">Memuat data produk toko Anda...</span>
             </div>
           ) : (
             <AnimatePresence mode="wait">
@@ -436,27 +429,6 @@ function MainAppShell() {
                 transition={{ duration: 0.15 }}
                 id="interactive-subview"
               >
-                {/* Empty product notice trigger */}
-                {products.length === 0 && activeTab === "dashboard" && (
-                  <div className="mb-6 p-5 bg-[#1E1E1E] border border-[#2C2C2E] rounded-2xl flex flex-col md:flex-row md:items-center md:justify-between gap-4" id="empty-db-seeding-banner">
-                    <div>
-                      <h4 className="font-bold text-white text-sm flex items-center gap-1.5">
-                        <Sparkles className="h-4 w-4 text-[#00E5FF]" />
-                        Inisialisasi Database Tenant Baru
-                      </h4>
-                      <p className="text-xs text-[#8C8C8E] mt-1 max-w-xl">
-                        Selamat! Toko baru Anda berhasil terdaftar secara terisolasi. Database masih kosong saat ini. Ingin memasukkan 6 item contoh (beberapa berstok minim) sekarang untuk simulasi pengawasan instan?
-                      </p>
-                    </div>
-                    <button
-                      onClick={handleSeedDummyProducts}
-                      className="py-2.5 px-4 bg-[#00E5FF] hover:bg-[#00B8D4] text-black font-bold text-xs rounded-xl shadow-md flex items-center gap-1 shrink-0 self-start md:self-auto cursor-pointer transition-colors"
-                    >
-                      <PlusCircle className="h-4.5 w-4.5" /> Seeding Otomatis
-                    </button>
-                  </div>
-                )}
-
                 {activeTab === "dashboard" && <DashboardView products={products} storeId={userData?.store_id || ""} />}
                 {activeTab === "products" && <ProductsView products={products} storeId={userData?.store_id || ""} />}
                 {activeTab === "store" && (
@@ -514,11 +486,15 @@ function AuthenticationScreen() {
         {/* Left Side: SaaS branding panel */}
         <div className="md:w-1/2 bg-slate-950 p-8 md:p-12 flex flex-col justify-between relative text-slate-200" id="brand-marketing-panel">
           <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 bg-indigo-600 rounded-2xl flex items-center justify-center">
-                <Briefcase className="h-6 w-6 text-white animate-pulse" />
+            <div className="flex items-center gap-3.5">
+              <StoreSageLogo size={44} withGlow={true} />
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight text-white font-sans flex items-center gap-2">
+                  StoreSage
+                  <span className="text-[10px] py-0.5 px-2 bg-blue-500/20 text-blue-400 font-bold uppercase rounded-full border border-blue-500/30">SaaS</span>
+                </h2>
+                <span className="text-xs text-slate-400 block font-medium">Smart Multi-Tenant Inventory</span>
               </div>
-              <h2 className="text-2xl font-bold tracking-tight text-white font-sans">StoreSage</h2>
             </div>
 
             <div className="pt-6 space-y-4">
@@ -526,14 +502,14 @@ function AuthenticationScreen() {
                 Selamat Datang di StoreSage
               </h3>
               <p className="text-sm text-slate-400 leading-relaxed font-sans">
-                Terima kasih telah memercayakan manajemen inventaris dan pergudangan UMKM Anda bersama kami. Komitmen kami adalah menjaga efisiensi stok dan isolasi data bisnis Anda dengan standar keamanan tertinggi.
+                Solusi manajemen inventaris, persediaan pergudangan, dan isolasi data multi-tenant UMKM terpadu dengan standar keamanan enterprise.
               </p>
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-2 text-xs text-slate-600 mt-6" id="security-note">
-            <Lock className="h-3.5 w-3.5" />
-            <span>Terkunci aman dengan Aturan Cloud Firestore & Auth SDK</span>
+          <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 mt-6" id="security-note">
+            <Lock className="h-3.5 w-3.5 text-indigo-400" />
+            <span>Dilindungi dengan enkripsi data standar industri.</span>
           </div>
         </div>
 
@@ -542,10 +518,10 @@ function AuthenticationScreen() {
           
           <div className="mb-6">
             <h3 className="text-2xl font-bold text-white">
-              Masuk Sistem Tenant
+              Masuk ke Akun Toko
             </h3>
             <p className="text-xs text-slate-400 mt-1">
-              Masukkan kredensial akun store Anda untuk mengelola inventaris.
+              Masukkan email dan kata sandi untuk mengelola operasional toko Anda.
             </p>
           </div>
 
@@ -563,7 +539,7 @@ function AuthenticationScreen() {
                 <Mail className="absolute left-3 top-3 h-4.5 w-4.5 text-slate-500" />
                 <input
                   type="email"
-                  placeholder="name@storesage.com"
+                  placeholder="owner@storesage.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full text-slate-200 text-sm p-3 pl-10 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 hover:border-slate-600 transition-all duration-200"
@@ -592,13 +568,13 @@ function AuthenticationScreen() {
                disabled={loading}
                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white font-bold text-sm rounded-xl transition-all shadow-md mt-2 flex items-center justify-center gap-2 cursor-pointer"
             >
-              {loading ? "Memproses..." : "Masuk Sistem"}
+              {loading ? "Memproses..." : "Masuk ke Akun Toko"}
             </button>
           </form>
 
           <div className="mt-4 text-center space-y-4">
             <p className="text-xs text-slate-400">
-              Belum berlangganan? <span className="text-indigo-400 font-semibold block sm:inline">Hubungi Admin untuk aktivasi tenant baru</span>
+              Belum memiliki akun? <span className="text-indigo-400 font-semibold block sm:inline">Hubungi Administrator untuk pendaftaran toko baru</span>
             </p>
           </div>
 
@@ -612,9 +588,11 @@ function AuthenticationScreen() {
 
 function LoadingSpinner() {
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center space-y-3" id="app-boot-loader">
-      <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500"></div>
-      <span className="text-xs font-semibold text-slate-500 tracking-wider uppercase font-mono">StoreSage Booting...</span>
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center space-y-4" id="app-boot-loader">
+      <div className="relative flex items-center justify-center">
+        <StoreSageLogo size={64} withGlow={true} className="animate-pulse" />
+      </div>
+      <span className="text-xs font-medium text-slate-400 font-sans tracking-wide">Memuat data toko...</span>
     </div>
   );
 }

@@ -37,6 +37,7 @@ import { getAuth, createUserWithEmailAndPassword, signOut, signInWithEmailAndPas
 import { doc, setDoc, collection, getDocs, updateDoc, deleteDoc, query, where, getFirestore as getSecondaryFirestore } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType, firebaseConfig } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
+import StoreSageLogo from "./StoreSageLogo";
 
 // Form input types
 interface AdminCreateTenantViewProps {
@@ -123,7 +124,8 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
   const [successNotification, setSuccessNotification] = useState<string | null>(null);
   const [errorNotification, setErrorNotification] = useState<string | null>(null);
 
-  // Status flags
+  // Modal state for Provisioning Form
+  const [isCreateTenantModalOpen, setIsCreateTenantModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -543,7 +545,7 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
       <div className="absolute -bottom-40 -left-20 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-3xl"></div>
 
       {/* Internal Navigation Header */}
-      <header className="border-b border-slate-900/80 bg-slate-950/60 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex items-center justify-between" id="admin-header">
+      <header className="border-b border-slate-900/80 bg-slate-950/60 backdrop-blur-md sticky top-0 z-40 px-6 py-3.5 flex items-center justify-between" id="admin-header">
         <div className="flex items-center gap-3">
           <button 
             type="button"
@@ -559,32 +561,22 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl flex items-center justify-center shadow-sm">
-              <Cpu className="h-5 w-5" />
-            </div>
+          <div className="flex items-center gap-3">
+            <StoreSageLogo size={34} withGlow={true} />
             <div>
               <h2 className="text-sm font-bold tracking-tight text-white font-sans flex items-center gap-2">
-                <span>StoreSage Admin Console</span>
-                <span className="hidden md:inline text-xs font-normal text-slate-400">- Platform Overview & Tenant Management</span>
+                StoreSage Admin Console
+                <span className="text-[9px] py-0.5 px-1.5 bg-blue-500/20 text-blue-400 font-bold uppercase rounded border border-blue-500/30">Super</span>
               </h2>
-              <span className="text-[10px] text-slate-500 block font-mono">Multi-Tenant Provisioner & SaaS Monitor</span>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Firebase Connection Status Indicator */}
-          <div className="flex items-center gap-2 px-2.5 py-1 bg-emerald-950/40 border border-emerald-500/30 rounded-lg text-[10.5px] font-mono text-emerald-400 font-semibold shadow-sm" id="firebase-status-badge">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="hidden sm:inline">Firebase Connection Status:</span> 
-            <span>Connected</span>
-          </div>
-
           {userData && (
-            <div className="hidden md:flex flex-col items-end text-xs text-right pl-1">
-              <span className="font-bold text-slate-300">{userData.name || user?.email}</span>
-              <span className="text-[10px] text-indigo-400 font-mono tracking-wider">SUPER ADMIN</span>
+            <div className="hidden sm:flex flex-col items-end text-xs text-right pl-1">
+              <span className="font-bold text-slate-200">{userData.name || user?.email}</span>
+              <span className="text-[10px] text-indigo-400 font-mono tracking-wider font-semibold">SUPER ADMIN</span>
             </div>
           )}
           {user ? (
@@ -599,25 +591,25 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
               <span className="hidden sm:inline">Keluar Sesi</span>
             </button>
           ) : (
-            <div className="hidden sm:flex items-center gap-1 text-[11px] font-mono text-slate-500 uppercase bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-800">
-              <span>KOLABORASI: DOSEN & MAHASISWA</span>
+            <div className="hidden sm:flex items-center gap-1 text-[11px] font-mono text-slate-400 bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-800">
+              <span>SUPER ADMIN SESSION</span>
             </div>
           )}
         </div>
       </header>
 
-      {/* Main Container Area - Enhanced to max-w-7xl for proper landscape spacious table / column layout */}
-      <div className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-8 flex flex-col justify-start relative z-20 space-y-8">
+      {/* Main Container Area */}
+      <div className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8 flex flex-col justify-start relative z-20 space-y-6">
         
         {/* Step 1: Secure gate authorization token check */}
         {!elegantUnlocked ? (
-          <div className="max-w-md w-full mx-auto bg-slate-900/60 border border-slate-800 rounded-3xl p-6 md:p-8 backdrop-blur-lg shadow-2xl" id="admin-gate-panel">
+          <div className="max-w-md w-full mx-auto bg-slate-900/60 border border-slate-800 rounded-3xl p-6 md:p-8 backdrop-blur-lg shadow-2xl my-auto" id="admin-gate-panel">
             <div className="flex flex-col items-center text-center mb-6">
-              <div className="h-12 w-12 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-2xl flex items-center justify-center mb-3">
-                <KeyRound className="h-6 w-6 animate-pulse" />
+              <div className="mb-4">
+                <StoreSageLogo size={56} withGlow={true} />
               </div>
               <h3 className="text-lg font-bold text-white">Security Gate Admin & Dosen</h3>
-              <p className="text-xs text-slate-400 mt-2 max-w-xs leading-relaxed">
+              <p className="text-xs text-slate-400 mt-1.5 max-w-xs leading-relaxed">
                 Silakan masukkan kunci otorisasi rahasia Anda untuk membuka Konsol Pembuat Akun UMKM Premium.
               </p>
             </div>
@@ -654,10 +646,10 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
             </form>
           </div>
         ) : (
-          /* Step 2: Main Provisioner View */
-          <div className="space-y-8 w-full" id="admin-provision-dashboard">
+          /* Step 2: Main Dashboard View */
+          <div className="space-y-6 w-full" id="admin-provision-dashboard">
 
-            {/* TOP ROW: GLOBAL STATS (4 METRIC CARDS) */}
+            {/* TOP ROW: GLOBAL STATS (4 METRIC CARDS - CLEAN & CONCISE) */}
             {(() => {
               const now = new Date();
               let activeCount = 0;
@@ -688,10 +680,7 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                   <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden group hover:border-indigo-500/40 transition-all">
                     <div className="space-y-1">
                       <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block font-sans">Total Tenants</span>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-extrabold text-white font-mono">{totalTenantsCount}</span>
-                        <span className="text-[10px] text-emerald-400 font-mono font-medium">+12% bln ini</span>
-                      </div>
+                      <div className="text-2xl font-extrabold text-white font-mono">{totalTenantsCount}</div>
                       <span className="text-[10px] text-slate-500 block">Terdaftar di platform</span>
                     </div>
                     <div className="h-11 w-11 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center shrink-0">
@@ -702,11 +691,8 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                   {/* Card 2: Active Tenants */}
                   <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden group hover:border-emerald-500/40 transition-all">
                     <div className="space-y-1">
-                      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block font-sans">Active Tenants</span>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-extrabold text-emerald-400 font-mono">{activeCount}</span>
-                        <span className="text-[10px] text-emerald-400 font-mono font-medium">SaaS Aktif</span>
-                      </div>
+                      <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider block font-sans">Active Tenants</span>
+                      <div className="text-2xl font-extrabold text-emerald-400 font-mono">{activeCount}</div>
                       <span className="text-[10px] text-slate-500 block">Langganan normal aktif</span>
                     </div>
                     <div className="h-11 w-11 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center shrink-0">
@@ -718,11 +704,8 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                   <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden group hover:border-amber-500/40 transition-all">
                     <div className="space-y-1">
                       <span className="text-[11px] font-semibold text-amber-300 uppercase tracking-wider block font-sans">Tenants in H-3 Warning</span>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-extrabold text-amber-400 font-mono">{warningCount}</span>
-                        <span className="text-[10px] text-amber-300 font-mono font-medium animate-pulse">Sisa ≤ 3 Hari</span>
-                      </div>
-                      <span className="text-[10px] text-slate-500 block">Masa tenggang billing</span>
+                      <div className="text-2xl font-extrabold text-amber-400 font-mono">{warningCount}</div>
+                      <span className="text-[10px] text-slate-500 block">Masa tenggang billing (≤ 3 Hari)</span>
                     </div>
                     <div className="h-11 w-11 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl flex items-center justify-center shrink-0">
                       <AlertTriangle className="h-5 w-5" />
@@ -733,10 +716,7 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                   <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden group hover:border-rose-500/40 transition-all">
                     <div className="space-y-1">
                       <span className="text-[11px] font-semibold text-rose-300 uppercase tracking-wider block font-sans">Expired Tenants</span>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-extrabold text-rose-400 font-mono">{expiredCount}</span>
-                        <span className="text-[10px] text-rose-400 font-mono font-medium">Terkunci</span>
-                      </div>
+                      <div className="text-2xl font-extrabold text-rose-400 font-mono">{expiredCount}</div>
                       <span className="text-[10px] text-slate-500 block">Perlu aktivasi ulang</span>
                     </div>
                     <div className="h-11 w-11 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl flex items-center justify-center shrink-0">
@@ -749,350 +729,60 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
             
             {/* Receipt Alert (If success) */}
             {receipt && (
-              <div className="bg-emerald-950/40 backdrop-blur-xl border border-emerald-500/30 p-6 rounded-xl relative overflow-hidden animate-fade-in shadow-xl w-full" id="receipt-box">
-                <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm mb-3">
-                  <CheckCircle className="h-5 w-5 animate-bounce" />
-                  <span>Sukses! Akun Tenant UMKM Berhasil Dibuat</span>
+              <div className="bg-emerald-950/40 backdrop-blur-xl border border-emerald-500/30 p-5 rounded-xl relative overflow-hidden animate-fade-in shadow-xl w-full" id="receipt-box">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                    <CheckCircle className="h-5 w-5 animate-bounce" />
+                    <span>Sukses! Akun Tenant UMKM Berhasil Didaftarkan</span>
+                  </div>
+                  <button 
+                    onClick={() => setReceipt(null)}
+                    className="text-slate-400 hover:text-slate-200 text-xs px-2 py-1 bg-slate-900/60 rounded border border-slate-800 cursor-pointer"
+                  >
+                    Tutup Notifikasi
+                  </button>
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed mb-4">
-                  Kredensial di bawah ini sudah tersimpan aman di Database Firestore & Google Authentication. Silakan salin informasi ini untuk diberikan kepada pengguna:
+                <p className="text-xs text-slate-300 leading-relaxed mb-3">
+                  Kredensial di bawah ini sudah tersimpan aman di Database Firestore & Google Authentication. Silakan salin informasi ini:
                 </p>
 
-                <div className="space-y-3 font-mono text-xs text-slate-300 bg-slate-950 p-4 rounded-xl border border-emerald-900/30">
-                  <div className="flex justify-between items-center pb-1.5 border-b border-slate-900/60">
-                    <span className="text-slate-500">Owner Name:</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-xs text-slate-300 bg-slate-950/90 p-4 rounded-xl border border-emerald-900/30">
+                  <div>
+                    <span className="text-slate-500 block text-[10px]">Owner & Nama Toko:</span>
                     <span className="font-bold text-slate-200">{receipt.ownerName}</span>
+                    <span className="text-slate-400 block text-[11px]">({receipt.storeName})</span>
                   </div>
-                  <div className="flex justify-between items-center pb-1.5 border-b border-slate-900/60">
-                    <span className="text-slate-500">Nama Toko:</span>
-                    <span className="font-bold text-slate-200">{receipt.storeName}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-1.5 border-b border-slate-900/60">
-                    <span className="text-slate-500">Email Login:</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-indigo-300">{receipt.email}</span>
+                  <div>
+                    <span className="text-slate-500 block text-[10px]">Email Login:</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="font-bold text-indigo-300 select-all truncate">{receipt.email}</span>
                       <button 
                         onClick={() => copyToClipboard(receipt.email, "Email")}
-                        className="p-1 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded cursor-pointer animate-pulse"
+                        className="p-1 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded cursor-pointer shrink-0"
                         title="Salin Email"
                       >
                         <Copy className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center pb-1.5 border-b border-slate-900/60">
-                    <span className="text-slate-500">Sandi Login:</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-indigo-300">{receipt.pass}</span>
+                  <div>
+                    <span className="text-slate-500 block text-[10px]">Sandi Login:</span>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="font-bold text-indigo-300 select-all">{receipt.pass}</span>
                       <button 
                         onClick={() => copyToClipboard(receipt.pass, "Sandi")}
-                        className="p-1 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded cursor-pointer animate-pulse"
+                        className="p-1 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded cursor-pointer shrink-0"
                         title="Salin Sandi"
                       >
                         <Copy className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
-                  <div className="flex justify-between items-center pb-1.5 border-b border-slate-900/60">
-                    <span className="text-slate-500">User UID:</span>
-                    <span className="text-[11px] text-slate-400 select-all truncate max-w-[200px]">{receipt.uid}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-500">Store Tenant ID:</span>
-                    <span className="text-[11px] text-slate-400 select-all font-bold">{receipt.storeId}</span>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between text-[11px]">
-                  <span className="text-emerald-400/80 font-semibold">• Status Langganan: ACTIVE</span>
-                  <span className="text-slate-500 font-mono">Sandi min. 6 karakter terdaftar di Auth</span>
                 </div>
               </div>
             )}
 
-            {/* TWO-COLUMN BALANCED GRID (MID SECTION) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch w-full">
-              
-              {/* Left Side (lg:col-span-2): Main Provisioning Form (Preserved fully) */}
-              <div className="lg:col-span-2 flex flex-col h-full">
-                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex flex-col justify-between h-full shadow-lg" id="creation-form-box">
-                  <div>
-                    <div className="flex items-center gap-2 pb-4 border-b border-white/10 mb-5">
-                      <Sparkles className="h-4.5 w-4.5 text-indigo-400" />
-                      <h3 className="font-bold text-white text-sm">Registrasi Instant Multi-Tenant</h3>
-                    </div>
-
-                    {errorMsg && (
-                      <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start gap-2.5 text-xs text-rose-300 mb-5">
-                        <AlertCircle className="h-4.5 w-4.5 shrink-0 mt-0.5 text-rose-400" />
-                        <span>{errorMsg}</span>
-                      </div>
-                    )}
-
-                    <form onSubmit={handleCreateTenant} className="space-y-4">
-                      {/* Grid fields for cleaner alignment */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1">
-                            <UserCheck className="h-3.5 w-3.5 text-indigo-400" /> Nama Owner UMKM
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Cth: Ibu Aminah Lestari"
-                            value={ownerName}
-                            onChange={(e) => setOwnerName(e.target.value)}
-                            className="w-full text-slate-200 text-xs p-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-1.5 focus:ring-indigo-500/30 font-sans"
-                            required
-                            disabled={loading}
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1">
-                            <Building2 className="h-3.5 w-3.5 text-indigo-400" /> Nama Toko / UMKM Baru
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Cth: Sembako Barokah Jaya"
-                            value={storeName}
-                            onChange={(e) => setStoreName(e.target.value)}
-                            className="w-full text-slate-200 text-xs p-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-1.5 focus:ring-indigo-500/30 font-sans"
-                            required
-                            disabled={loading}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1">
-                            <Mail className="h-3.5 w-3.5 text-indigo-400" /> Email Custom (Kredensial Login)
-                          </label>
-                          <input
-                            type="email"
-                            placeholder="Cth: name@storesage.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full text-slate-200 text-xs p-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-1.5 focus:ring-indigo-500/30 font-mono"
-                            required
-                            disabled={loading}
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1">
-                            <Lock className="h-3.5 w-3.5 text-indigo-400" /> Sandi Custom (Minimum 6 Karakter)
-                          </label>
-                          <div className="relative">
-                            <input
-                              type={showPassword ? "text" : "password"}
-                              placeholder="Kata sandi yang mudah disalin"
-                              value={password}
-                              onChange={(e) => setPassword(e.target.value)}
-                              className="w-full text-slate-200 text-xs p-3 pr-10 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-1.5 focus:ring-indigo-500/30 font-mono"
-                              required
-                              disabled={loading}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-3 text-slate-500 hover:text-slate-350 cursor-pointer"
-                            >
-                              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold text-slate-400 mb-1.5 flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5 text-indigo-400" /> Paket & Durasi Berlangganan Awal
-                        </label>
-                        <select
-                          value={durationOption}
-                          onChange={(e) => setDurationOption(e.target.value)}
-                          className="w-full text-slate-200 text-xs p-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-1.5 focus:ring-indigo-500/30 font-sans cursor-pointer"
-                          disabled={loading}
-                        >
-                          <option value="30">30 Hari (Paket Reguler - 1 Bulan)</option>
-                          <option value="90">90 Hari (Paket Hemat - 3 Bulan)</option>
-                          <option value="365">365 Hari (Paket Setahun - 12 Bulan)</option>
-                          <option value="3_days">⚠️ Uji Coba H-3 (Aktif 3 Hari - Skenario Email Warning H-3)</option>
-                          <option value="2_days">⚠️ Uji Coba H-2 (Aktif 2 Hari)</option>
-                          <option value="5_mins">⚡ Simulasi Kilat (Aktif 5 Menit - Demo Expired)</option>
-                        </select>
-                      </div>
-
-                      {/* Seed option checklist */}
-                      <div className="p-3 bg-slate-950/80 border border-white/5 rounded-xl flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          id="opt-seed"
-                          checked={preSeedProducts}
-                          onChange={(e) => setPreSeedProducts(e.target.checked)}
-                          className="accent-indigo-500 h-4 w-4 rounded cursor-pointer"
-                          disabled={loading}
-                        />
-                        <label htmlFor="opt-seed" className="text-xs text-slate-400 cursor-pointer select-none font-sans leading-relaxed">
-                          Sertakan 3 Produk Awal Bawaan (Sirup, Teh, Kopi) agar dashboard tidak kosong setelah didaftarkan
-                        </label>
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-4"
-                      >
-                        {loading ? (
-                          <span className="flex items-center gap-1.5">
-                            <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                            Sedang Mendaftarkan Tenant...
-                          </span>
-                        ) : (
-                          <span>Daftarkan Akun Custom UMKM</span>
-                        )}
-                      </button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Side (lg:col-span-1): Stacked Instruksi, Global Package Management & Log Simulator */}
-              <div className="lg:col-span-1 flex flex-col gap-6 h-full justify-between">
-                
-                {/* 1. Instruksi Pendaftaran */}
-                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 flex flex-col justify-start space-y-3 shadow-lg">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                    <h3 className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
-                      <ShieldCheck className="h-4 w-4 text-indigo-400" />
-                      <span>Instruksi Pendaftaran</span>
-                    </h3>
-                    <span className="text-[9px] uppercase tracking-wider font-mono text-indigo-400 font-extrabold px-2 py-0.5 bg-indigo-500/10 rounded-sm">
-                      Dosen/Admin
-                    </span>
-                  </div>
-                  
-                  <div className="text-xs text-slate-400 space-y-2 pt-1 font-sans">
-                    <p className="flex gap-2 items-start">
-                      <span className="text-indigo-400 font-bold font-mono text-xs">1.</span>
-                      <span>Isi data lengkap pemilik UMKM yang sudah mendaftar sesuai formulir.</span>
-                    </p>
-                    <p className="flex gap-2 items-start">
-                      <span className="text-indigo-400 font-bold font-mono text-xs">2.</span>
-                      <span>Firebase Auth baru dibuat asinkron tanpa menimpa sesi login aktif Anda.</span>
-                    </p>
-                    <p className="flex gap-2 items-start">
-                      <span className="text-indigo-400 font-bold font-mono text-xs">3.</span>
-                      <span>Silo-Tenant baru berstatus <strong className="text-emerald-400">active</strong> dengan hak <strong>owner</strong> langsung terbentuk.</span>
-                    </p>
-                  </div>
-                </div>
-
-                {/* 2. Global Package Management (New) */}
-                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 flex flex-col justify-start space-y-3 shadow-lg" id="package-management-card">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                    <div className="flex items-center gap-1.5 text-xs text-indigo-300 font-bold">
-                      <Package className="h-4 w-4 text-indigo-400" />
-                      <span>Global Package Management</span>
-                    </div>
-                    <button
-                      onClick={() => setIsAddPackageModalOpen(true)}
-                      className="px-2 py-0.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow"
-                    >
-                      <Plus className="h-3 w-3" />
-                      <span>Tambah Paket</span>
-                    </button>
-                  </div>
-
-                  <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
-                    Daftar paket durasi langganan UMKM yang dapat dialokasikan pada sistem:
-                  </p>
-
-                  <div className="space-y-2 max-h-[145px] overflow-y-auto pr-1">
-                    {packagePlans.map((pkg) => (
-                      <div key={pkg.id} className="p-2 bg-slate-950/80 border border-white/5 rounded-lg flex items-center justify-between text-xs hover:border-indigo-500/30 transition-colors">
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-slate-200 text-xs">{pkg.name}</span>
-                            {pkg.isPopular && (
-                              <span className="px-1.5 py-0.2 bg-indigo-500/20 text-indigo-300 text-[8px] font-mono font-bold rounded">
-                                POPULER
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-[10px] text-slate-500 block">{pkg.features}</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="font-mono font-bold text-indigo-300 text-xs">{pkg.priceFormatted}</span>
-                          <span className="text-[9px] text-slate-500 block font-mono">{pkg.durationDays} Hari</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* 3. Server Notifikasi Email StoreSage (Log Simulator) */}
-                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 flex flex-col justify-start space-y-3 shadow-lg" id="email-server-monitor-card">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-2" id="email-server-title">
-                    <div className="flex items-center gap-1.5 text-xs text-indigo-400 font-bold">
-                      <Mail className="h-4 w-4 animate-pulse text-indigo-400" />
-                      <span>Notifikasi Masa Tenggang H-3 & Simulator</span>
-                    </div>
-                    <span className="text-[8.5px] uppercase tracking-wider font-mono text-emerald-400 font-bold px-1.5 py-0.5 bg-emerald-500/10 rounded border border-emerald-500/20">
-                      Otomatis H-3
-                    </span>
-                  </div>
-                  
-                  <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
-                    Saat masa tenggang tenant menyentuh <strong>H-3 (sisa ≤ 3 hari)</strong>, sistem otomatis mendeteksi durasi paket dan menyiarkan notifikasi:
-                  </p>
-
-                  <div className="flex-1 flex flex-col justify-end min-h-[110px]">
-                    {emailLogs.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center p-3 border border-dashed border-slate-800 rounded-xl text-center text-[10px] text-slate-500 font-mono w-full">
-                        <span>[Antrean Notifikasi Kosong]</span>
-                        <span className="text-[9px] text-slate-600 mt-0.5">Belum ada tenant dalam masa tenggang H-3 saat ini.</span>
-                      </div>
-                    ) : (
-                      <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1 select-text w-full">
-                        {emailLogs.slice(0, 4).map(log => (
-                          <div key={log.id} className="p-2 bg-slate-950/90 border border-indigo-950/60 rounded-lg text-[10px] space-y-1.5 animate-fade-in font-mono shadow-sm">
-                            <div className="flex justify-between items-center text-[9px] text-indigo-300 font-bold">
-                              <span className="truncate max-w-[140px]">➔ {log.email}</span>
-                              <span className="text-slate-500">{log.timestamp.toLocaleTimeString("id-ID")}</span>
-                            </div>
-                            
-                            <div className="flex flex-wrap gap-1 text-[8.5px]">
-                              {log.packageName && (
-                                <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-300 rounded border border-indigo-500/20 font-sans font-semibold">
-                                  {log.packageName}
-                                </span>
-                              )}
-                              {log.remainingText && (
-                                <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-300 rounded border border-amber-500/20 font-sans font-semibold">
-                                  {log.remainingText}
-                                </span>
-                              )}
-                            </div>
-
-                            <p className="text-slate-300 leading-relaxed font-sans text-[9px] bg-slate-900/50 p-1.5 rounded border border-white/5">
-                              {log.message}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* Bottom Section: Panel Pengawasan Billing (Expanded & Scalable Table) */}
+            {/* PRIMARY FOCUS: Panel Pengawasan Billing & Peringatan H-3 (Full-Width) */}
             {(() => {
               const now = new Date();
               
@@ -1130,18 +820,31 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                         <Hourglass className="h-5 w-5 animate-spin-slow text-indigo-400" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-white text-sm">Panel Pengawasan Billing & Peringatan H-3</h3>
-                        <p className="text-[10px] text-slate-400 font-mono mt-0.5 tracking-wider uppercase">SaaS MULTI-TENANT MONITOR & EXPANDED AUDIT TABLE</p>
+                        <h3 className="font-bold text-white text-base">Panel Pengawasan Billing & Peringatan H-3</h3>
+                        <p className="text-[11px] text-slate-400 font-sans mt-0.5">Daftar isolasi multi-tenant, pantauan masa tenggang, dan kontrol langganan UMKM</p>
                       </div>
                     </div>
-                    <button 
-                      onClick={loadTenants}
-                      disabled={tenantsLoading}
-                      className="p-2 px-3 bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto disabled:opacity-40"
-                    >
-                      <RefreshCw className={`h-3.5 w-3.5 ${tenantsLoading ? "animate-spin text-indigo-400" : ""}`} />
-                      <span>Segarkan Data</span>
-                    </button>
+                    
+                    <div className="flex items-center gap-2.5 self-start sm:self-auto">
+                      <button 
+                        onClick={() => setIsCreateTenantModalOpen(true)}
+                        className="py-2 px-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-md cursor-pointer hover:shadow-indigo-500/20"
+                        id="open-register-modal-btn"
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span>Daftarkan UMKM Baru</span>
+                      </button>
+
+                      <button 
+                        onClick={loadTenants}
+                        disabled={tenantsLoading}
+                        className="py-2 px-3 bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-40"
+                        title="Refresh Tenant Table"
+                      >
+                        <RefreshCw className={`h-3.5 w-3.5 ${tenantsLoading ? "animate-spin text-indigo-400" : ""}`} />
+                        <span className="hidden sm:inline">Segarkan</span>
+                      </button>
+                    </div>
                   </div>
 
                   {/* SEARCH & FILTER CONTROLS */}
@@ -1150,7 +853,7 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                       <Search className="h-3.5 w-3.5 text-slate-400 absolute left-3 top-2.5" />
                       <input
                         type="text"
-                        placeholder="Cari UMKM, Email, atau Store ID..."
+                        placeholder="Cari UMKM, Owner, Email, atau Store ID..."
                         value={searchQuery}
                         onChange={(e) => {
                           setSearchQuery(e.target.value);
@@ -1215,12 +918,12 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                           <thead>
                             <tr className="bg-slate-950/80 text-slate-400 font-sans">
                               <th className="p-3.5 font-bold text-left text-xs">Nama UMKM / Owner</th>
-                              <th className="p-3.5 font-bold text-left text-xs">Kredensial Email</th>
+                              <th className="p-3.5 font-bold text-left text-xs">Email Pemilik</th>
                               <th className="p-3.5 font-bold text-left text-xs">Paket & Durasi</th>
                               <th className="p-3.5 font-bold text-left text-xs">Status Langganan</th>
                               <th className="p-3.5 font-bold text-left text-xs">Masa Aktif Berakhir</th>
                               <th className="p-3.5 font-bold text-left text-xs">Indikator Sisa Hari</th>
-                              <th className="p-3.5 font-bold text-center text-xs w-[280px]">Tindakan Demo</th>
+                              <th className="p-3.5 font-bold text-center text-xs w-[280px]">Aksi Cepat</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/5 bg-transparent">
@@ -1240,7 +943,6 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                                   diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                                   diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                                   diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                                  // H-3 concept: sisa hari <= 3 hari (72 jam)
                                   if (diffMs <= 3 * 24 * 60 * 60 * 1000) {
                                     isH_3 = true;
                                   }
@@ -1264,7 +966,6 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                                       {displayPackage}
                                     </span>
                                   </td>
-                                  {/* Subscription Status column with colored icons */}
                                   <td className="p-3.5">
                                     {isExpired ? (
                                       <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-500/15 text-rose-400 font-bold text-[10px] rounded-full border border-rose-500/20">
@@ -1321,7 +1022,6 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                                   </td>
                                   <td className="p-3.5 text-center">
                                     <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                                      {/* Quick simulation button: Reduce to H-3 */}
                                       {!isExpired && !isH_3 && (
                                         <button
                                           onClick={() => handleAdjustExpiry(t.store_id, 2.9)}
@@ -1332,7 +1032,6 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                                         </button>
                                       )}
 
-                                      {/* Quick simulation: Make expired */}
                                       {!isExpired && (
                                         <button
                                           onClick={() => handleAdjustExpiry(t.store_id, 0)}
@@ -1343,7 +1042,6 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                                         </button>
                                       )}
 
-                                      {/* Send simulated Email Info */}
                                       {isH_3 && (
                                         <button
                                           onClick={() => handleSendSimulatedEmail(t.store_name, t.email, remainingTextFormatted, t.ownerName, displayPackage)}
@@ -1355,7 +1053,6 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                                         </button>
                                       )}
 
-                                      {/* Extend 30 days */}
                                       {(isExpired || isH_3) && (
                                         <button
                                           onClick={() => handleAdjustExpiry(t.store_id, 30)}
@@ -1426,9 +1123,285 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
               );
             })()}
 
+            {/* SECONDARY SECTION: Global Package Management & Log Notifikasi H-3 (Clean 2-Column Section) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch w-full">
+              
+              {/* Left Column: Global Package Management */}
+              <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 flex flex-col justify-between shadow-lg space-y-4" id="package-management-card">
+                <div>
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
+                    <div className="flex items-center gap-2 text-sm text-indigo-300 font-bold">
+                      <Package className="h-4.5 w-4.5 text-indigo-400" />
+                      <span>Global Package Management</span>
+                    </div>
+                    <button
+                      onClick={() => setIsAddPackageModalOpen(true)}
+                      className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-all shadow"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      <span>Tambah Paket</span>
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-slate-400 leading-relaxed font-normal mb-3">
+                    Katalog durasi paket langganan aktif yang tersedia untuk alokasi tenant baru maupun perpanjangan.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {packagePlans.map((pkg) => (
+                      <div key={pkg.id} className="p-3 bg-slate-950/80 border border-white/5 rounded-lg flex flex-col justify-between text-xs hover:border-indigo-500/30 transition-colors">
+                        <div className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-slate-200 text-xs">{pkg.name}</span>
+                            {pkg.isPopular && (
+                              <span className="px-1.5 py-0.5 bg-indigo-500/20 text-indigo-300 text-[8.5px] font-mono font-bold rounded">
+                                POPULER
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10.5px] text-slate-500 block leading-tight">{pkg.features}</span>
+                        </div>
+                        <div className="mt-2.5 pt-2 border-t border-white/5 flex items-baseline justify-between">
+                          <span className="text-[10px] text-slate-400 font-mono">{pkg.durationDays} Hari</span>
+                          <span className="font-mono font-bold text-indigo-300 text-xs">{pkg.priceFormatted}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Log Siaran Masa Tenggang H-3 */}
+              <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 flex flex-col justify-between shadow-lg space-y-4" id="email-server-monitor-card">
+                <div>
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3" id="email-server-title">
+                    <div className="flex items-center gap-2 text-sm text-indigo-300 font-bold">
+                      <Mail className="h-4.5 w-4.5 text-indigo-400" />
+                      <span>Log Siaran Peringatan H-3</span>
+                    </div>
+                    <span className="text-[9px] uppercase tracking-wider font-mono text-emerald-400 font-bold px-2 py-0.5 bg-emerald-500/10 rounded border border-emerald-500/20">
+                      Otomatis H-3
+                    </span>
+                  </div>
+                  
+                  <p className="text-xs text-slate-400 leading-relaxed font-normal mb-3">
+                    Riwayat siaran notifikasi otomatis saat masa tenggang tenant menyentuh <strong>sisa ≤ 3 hari</strong>.
+                  </p>
+
+                  <div className="flex-1 flex flex-col justify-end min-h-[140px]">
+                    {emailLogs.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center p-6 border border-dashed border-slate-800 rounded-xl text-center text-xs text-slate-500 font-mono w-full">
+                        <span>[Antrean Notifikasi Kosong]</span>
+                        <span className="text-[10px] text-slate-600 mt-1">Seluruh tenant dalam kondisi masa aktif normal (&gt; 3 hari).</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-2 max-h-[170px] overflow-y-auto pr-1 select-text w-full">
+                        {emailLogs.slice(0, 4).map(log => (
+                          <div key={log.id} className="p-2.5 bg-slate-950/90 border border-indigo-950/60 rounded-lg text-xs space-y-1.5 animate-fade-in font-mono shadow-sm">
+                            <div className="flex justify-between items-center text-[10px] text-indigo-300 font-bold">
+                              <span className="truncate max-w-[170px]">➔ {log.email}</span>
+                              <span className="text-slate-500">{log.timestamp.toLocaleTimeString("id-ID")}</span>
+                            </div>
+                            
+                            <div className="flex flex-wrap gap-1.5 text-[9px]">
+                              {log.packageName && (
+                                <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-300 rounded border border-indigo-500/20 font-sans font-semibold">
+                                  {log.packageName}
+                                </span>
+                              )}
+                              {log.remainingText && (
+                                <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-300 rounded border border-amber-500/20 font-sans font-semibold">
+                                  {log.remainingText}
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="text-slate-300 leading-relaxed font-sans text-[10.5px] bg-slate-900/50 p-2 rounded border border-white/5">
+                              {log.message}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
           </div>
         )}
       </div>
+
+      {/* Modal: Registrasi Instant Multi-Tenant */}
+      {isCreateTenantModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative overflow-hidden text-left animate-fade-in font-sans my-8">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+              <div className="flex items-center gap-2 text-indigo-400 font-bold text-base">
+                <Sparkles className="h-5 w-5" />
+                <span>Registrasi Instant Multi-Tenant</span>
+              </div>
+              <button 
+                onClick={() => {
+                  setIsCreateTenantModalOpen(false);
+                  setErrorMsg(null);
+                }}
+                className="text-slate-500 hover:text-slate-300 cursor-pointer text-sm p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            {errorMsg && (
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start gap-2.5 text-xs text-rose-300 mb-4">
+                <AlertCircle className="h-4.5 w-4.5 shrink-0 mt-0.5 text-rose-400" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={async (e) => {
+              await handleCreateTenant(e);
+              if (!errorMsg) {
+                setIsCreateTenantModalOpen(false);
+              }
+            }} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1 flex items-center gap-1">
+                    <UserCheck className="h-3.5 w-3.5 text-indigo-400" /> Nama Owner UMKM
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Cth: Ibu Aminah Lestari"
+                    value={ownerName}
+                    onChange={(e) => setOwnerName(e.target.value)}
+                    className="w-full text-slate-200 text-xs p-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-1.5 focus:ring-indigo-500/30 font-sans"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1 flex items-center gap-1">
+                    <Building2 className="h-3.5 w-3.5 text-indigo-400" /> Nama Toko / UMKM Baru
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Cth: Sembako Barokah Jaya"
+                    value={storeName}
+                    onChange={(e) => setStoreName(e.target.value)}
+                    className="w-full text-slate-200 text-xs p-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-1.5 focus:ring-indigo-500/30 font-sans"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1 flex items-center gap-1">
+                    <Mail className="h-3.5 w-3.5 text-indigo-400" /> Email Login Custom
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="Cth: toko@storesage.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full text-slate-200 text-xs p-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-1.5 focus:ring-indigo-500/30 font-mono"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1 flex items-center gap-1">
+                    <Lock className="h-3.5 w-3.5 text-indigo-400" /> Sandi (Min. 6 Karakter)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Kata sandi login"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full text-slate-200 text-xs p-2.5 pr-9 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-1.5 focus:ring-indigo-500/30 font-mono"
+                      required
+                      disabled={loading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2.5 top-2.5 text-slate-500 hover:text-slate-300 cursor-pointer"
+                    >
+                      {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-400 mb-1 flex items-center gap-1">
+                  <Clock className="h-3.5 w-3.5 text-indigo-400" /> Paket & Durasi Berlangganan Awal
+                </label>
+                <select
+                  value={durationOption}
+                  onChange={(e) => setDurationOption(e.target.value)}
+                  className="w-full text-slate-200 text-xs p-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:ring-1.5 focus:ring-indigo-500/30 font-sans cursor-pointer"
+                  disabled={loading}
+                >
+                  <option value="30">30 Hari (Paket Reguler - 1 Bulan)</option>
+                  <option value="90">90 Hari (Paket Hemat - 3 Bulan)</option>
+                  <option value="365">365 Hari (Paket Setahun - 12 Bulan)</option>
+                  <option value="3_days">⚠️ Uji Coba H-3 (Aktif 3 Hari - Skenario Warning H-3)</option>
+                  <option value="2_days">⚠️ Uji Coba H-2 (Aktif 2 Hari)</option>
+                  <option value="5_mins">⚡ Simulasi Kilat (Aktif 5 Menit - Demo Expired)</option>
+                </select>
+              </div>
+
+              <div className="p-3 bg-slate-950/80 border border-white/5 rounded-xl flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="opt-seed-modal"
+                  checked={preSeedProducts}
+                  onChange={(e) => setPreSeedProducts(e.target.checked)}
+                  className="accent-indigo-500 h-4 w-4 rounded cursor-pointer"
+                  disabled={loading}
+                />
+                <label htmlFor="opt-seed-modal" className="text-xs text-slate-400 cursor-pointer select-none font-sans leading-relaxed">
+                  Sertakan 3 Produk Awal Bawaan (Sirup, Teh, Kopi) agar tenant langsung siap transaksi
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateTenantModalOpen(false)}
+                  className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 bg-slate-800 rounded-xl cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all shadow flex items-center gap-2 cursor-pointer"
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-1.5">
+                      <svg className="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                      </svg>
+                      Mendaftarkan...
+                    </span>
+                  ) : (
+                    <span>Daftarkan Tenant</span>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Modal: Tambah Paket Baru (Global Package Management) */}
       {isAddPackageModalOpen && (

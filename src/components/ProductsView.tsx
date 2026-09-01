@@ -170,70 +170,70 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
       
       {/* 1. Form Tambah Produk */}
       <div className="xl:col-span-1" id="add-product-panel">
-        <div className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-[16px] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,229,255,0.12)] hover:border-[#00E5FF]/20 sticky top-4">
-          <div className="mb-4 pb-2 border-b border-[#2C2C2E] flex items-center gap-2">
-            <div className="p-1.5 bg-[#00E5FF]/10 text-[#00E5FF] rounded-lg">
+        <div className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-2xl p-6 transition-all duration-200 hover:border-indigo-500/30 sticky top-4">
+          <div className="mb-5 pb-3 border-b border-[#2C2C2E] flex items-center gap-3">
+            <div className="p-2.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl">
               <Plus className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-bold tracking-[-0.03em] text-white text-base">Tambah Produk Baru</h3>
-              <p className="text-xs text-[#8C8C8E] mt-0.5">Daftarkan item baru ke inventaris tenant</p>
+              <h3 className="font-bold tracking-tight text-white text-base">Tambah Produk Baru</h3>
+              <p className="text-xs text-[#8C8C8E] mt-0.5">Daftarkan item baru ke inventaris toko</p>
             </div>
           </div>
 
           <form onSubmit={handleCreateProduct} className="space-y-4" id="add-product-form">
             {formError && (
-              <div className="p-3 bg-rose-950/40 border border-[#FF453A]/20 rounded-md flex items-start gap-2 text-xs text-[#FF453A]" id="form-error-banner">
+              <div className="p-3 bg-rose-950/40 border border-rose-500/30 rounded-xl flex items-start gap-2 text-xs text-rose-300" id="form-error-banner">
                 <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                 <span>{formError}</span>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-bold text-[#8C8C8E] mb-1">Nama Produk</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">Nama Produk</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="cth. Mie Instan Goreng"
-                className="w-full text-white text-[14px] px-4 py-2 bg-[#121212] border border-[#2C2C2E] rounded-[6px] focus:border-[#00E5FF] focus:ring-[3px] focus:ring-[#00E5FF]/12 outline-none transition-all font-sans"
+                placeholder="cth. Kopi Arabika Premium 250g"
+                className="w-full text-white text-sm px-3.5 py-2.5 bg-[#121212] border border-[#2C2C2E] rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-sans"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#8C8C8E] mb-1">SKU (Kode Unik)</label>
+              <label className="block text-xs font-semibold text-slate-400 mb-1">SKU / Kode Barang</label>
               <input
                 type="text"
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
-                placeholder="cth. MIE-INST-01"
-                className="w-full text-white text-[14px] px-4 py-2 bg-[#121212] border border-[#2C2C2E] rounded-[6px] focus:border-[#00E5FF] focus:ring-[3px] focus:ring-[#00E5FF]/12 outline-none transition-all font-mono uppercase"
+                placeholder="cth. KOP-ARA-01"
+                className="w-full text-white text-sm px-3.5 py-2.5 bg-[#121212] border border-[#2C2C2E] rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-mono uppercase"
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-[#8C8C8E] mb-1">Stok Awal</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Stok Awal</label>
                 <input
                   type="text"
                   value={stock}
                   onChange={(e) => setStock(formatNumberWithDots(e.target.value))}
                   placeholder="0"
-                  className="w-full text-white text-[14px] px-4 py-2 bg-[#121212] border border-[#2C2C2E] rounded-[6px] focus:border-[#00E5FF] focus:ring-[3px] focus:ring-[#00E5FF]/12 outline-none transition-all font-mono"
+                  className="w-full text-white text-sm px-3.5 py-2.5 bg-[#121212] border border-[#2C2C2E] rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-mono"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#8C8C8E] mb-1">Stok Minimum</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Batas Minimum</label>
                 <input
                   type="text"
                   value={stockMinimum}
                   onChange={(e) => setStockMinimum(formatNumberWithDots(e.target.value))}
                   placeholder="5"
-                  className="w-full text-white text-[14px] px-4 py-2 bg-[#121212] border border-[#2C2C2E] rounded-[6px] focus:border-[#00E5FF] focus:ring-[3px] focus:ring-[#00E5FF]/12 outline-none transition-all font-mono"
+                  className="w-full text-white text-sm px-3.5 py-2.5 bg-[#121212] border border-[#2C2C2E] rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-mono"
                   required
                 />
               </div>
@@ -241,25 +241,25 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-bold text-[#8C8C8E] mb-1">Harga Modal (Rp)</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Harga Modal (Rp)</label>
                 <input
                   type="text"
                   value={costPrice}
                   onChange={(e) => setCostPrice(formatNumberWithDots(e.target.value))}
-                  placeholder="cth. 2.500"
-                  className="w-full text-white text-[14px] px-4 py-2 bg-[#121212] border border-[#2C2C2E] rounded-[6px] focus:border-[#00E5FF] focus:ring-[3px] focus:ring-[#00E5FF]/12 outline-none transition-all font-mono"
+                  placeholder="25.000"
+                  className="w-full text-white text-sm px-3.5 py-2.5 bg-[#121212] border border-[#2C2C2E] rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-mono"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#8C8C8E] mb-1">Harga Jual (Rp)</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">Harga Jual (Rp)</label>
                 <input
                   type="text"
                   value={price}
                   onChange={(e) => setPrice(formatNumberWithDots(e.target.value))}
-                  placeholder="cth. 3.500"
-                  className="w-full text-white text-[14px] px-4 py-2 bg-[#121212] border border-[#2C2C2E] rounded-[6px] focus:border-[#00E5FF] focus:ring-[3px] focus:ring-[#00E5FF]/12 outline-none transition-all font-mono"
+                  placeholder="35.000"
+                  className="w-full text-white text-sm px-3.5 py-2.5 bg-[#121212] border border-[#2C2C2E] rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all font-mono"
                   required
                 />
               </div>
@@ -268,7 +268,7 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full bg-[#00E5FF] hover:bg-[#00B8D4] text-black font-extrabold rounded-[6px] py-2.5 text-xs uppercase tracking-wider transition-transform hover:-translate-y-0.5 shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl py-3 text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-2"
             >
               <Plus className="h-4 w-4" />
               {isPending ? "Menyimpan..." : "Simpan Produk"}
@@ -279,27 +279,27 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
 
       {/* 2. Tabel List Produk Realtime */}
       <div className="xl:col-span-2" id="products-table-panel">
-        <div className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-[16px] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,229,255,0.12)] hover:border-[#00E5FF]/20">
+        <div className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-2xl p-6 transition-all duration-200 hover:border-indigo-500/30">
           
           {/* Table Header Filter controls */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#2C2C2E]" id="products-list-header">
             <div>
-              <h3 className="font-bold tracking-[-0.03em] text-white text-base flex items-center gap-2">
-                <Package className="h-5 w-5 text-[#00E5FF]" />
-                Katalog Produk Real-Time (Master Data)
+              <h3 className="font-bold tracking-tight text-white text-base flex items-center gap-2">
+                <Package className="h-5 w-5 text-indigo-400" />
+                Daftar Produk Toko
               </h3>
-              <p className="text-xs text-[#8C8C8E] mt-0.5">Kelola spesifikasi harga, SKU, dan batas minimal stok produk</p>
+              <p className="text-xs text-[#8C8C8E] mt-0.5">Kelola data harga jual, modal, kode SKU, dan kontrol stok minimum</p>
             </div>
             
             <div className="flex items-center gap-2 self-start md:self-auto w-full md:w-auto">
               <div className="relative flex-1 md:w-56 text-[#8C8C8E]">
-                <Search className="h-4 w-4 text-[#8C8C8E] absolute left-3 top-2.5" />
+                <Search className="h-4 w-4 text-slate-500 absolute left-3 top-2.5" />
                 <input
                   type="text"
                   placeholder="Cari nama atau SKU..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full text-xs pl-9 pr-3 py-2 bg-[#121212] border border-[#2C2C2E] rounded-[6px] focus:outline-none focus:border-[#00E5FF] focus:ring-[3px] focus:ring-[#00E5FF]/12 outline-none transition-all text-white"
+                  className="w-full text-xs pl-9 pr-3 py-2 bg-[#121212] border border-[#2C2C2E] rounded-xl focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-white"
                 />
               </div>
             </div>
@@ -307,18 +307,18 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
 
           {/* Actual Catalog Table */}
           {filteredProducts.length === 0 ? (
-            <div className="py-12 text-center flex flex-col items-center justify-center space-y-3 bg-[#121212] rounded-[6px] border border-dashed border-[#2C2C2E]" id="products-empty-state">
-              <Package className="h-12 w-12 text-[#8C8C8E] opacity-50" />
-              <h4 className="text-[13px] font-semibold text-white">Tidak Ada Produk</h4>
+            <div className="py-12 text-center flex flex-col items-center justify-center space-y-3 bg-[#121212] rounded-xl border border-dashed border-[#2C2C2E]" id="products-empty-state">
+              <Package className="h-12 w-12 text-slate-600" />
+              <h4 className="text-sm font-semibold text-white">Tidak Ada Produk</h4>
               <p className="text-xs text-[#8C8C8E] max-w-xs leading-relaxed">
                 {searchQuery ? "Kueri pencarian tidak cocok dengan item yang tersedia." : "Mulai dengan mengisi formulir di samping untuk menambahkan produk perdana."}
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-[6px] border border-[#2C2C2E] bg-[#121212]" id="catalog-scroll">
+            <div className="overflow-x-auto rounded-xl border border-[#2C2C2E] bg-[#121212]" id="catalog-scroll">
               <table className="w-full text-left border-collapse" id="catalog-products-table">
                 <thead>
-                  <tr className="bg-[#1A1A1A] border-b border-[#2C2C2E] text-[11px] font-bold text-[#8C8C8E] uppercase tracking-wider">
+                  <tr className="bg-slate-900/60 border-b border-[#2C2C2E] text-[11px] font-bold text-[#8C8C8E] uppercase tracking-wider">
                     <th className="py-3 px-4">Detail Produk</th>
                     <th className="py-3 px-4">SKU</th>
                     <th className="py-3 px-4 text-right">Harga Modal</th>
@@ -327,7 +327,7 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
                     <th className="py-3 px-4 text-right">Aksi</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#2C2C2E] text-[13px]">
+                <tbody className="divide-y divide-[#2C2C2E] text-xs">
                   {filteredProducts.map((p) => {
                     const isEditing = editingProduct?.id === p.id;
                     const isLowStock = p.stock <= p.stock_minimum;
@@ -335,8 +335,8 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
                     return (
                       <tr 
                         key={p.id} 
-                        className={`hover:bg-[#252525] transition-colors ${
-                          isLowStock ? (p.stock === 0 ? "bg-[#3A1C1C] text-[#FF453A]" : "bg-[#2D2210]/20 text-amber-455") : ""
+                        className={`hover:bg-slate-900/50 transition-colors ${
+                          isLowStock ? (p.stock === 0 ? "bg-rose-950/20 text-rose-300" : "bg-amber-950/15 text-amber-200") : ""
                         }`}
                       >
                         {/* Name Column */}
@@ -346,14 +346,14 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
                               type="text"
                               value={editName}
                               onChange={(e) => setEditName(e.target.value)}
-                              className="w-full p-1.5 bg-[#121212] border border-[#2C2C2E] text-xs rounded-[4px] font-sans text-white outline-none focus:border-[#00E5FF]"
+                              className="w-full p-1.5 bg-[#121212] border border-[#2C2C2E] text-xs rounded-lg font-sans text-white outline-none focus:border-indigo-500"
                             />
                           ) : (
                             <div className="flex flex-col">
                               <span className="font-bold text-white">{p.name}</span>
                               {isLowStock && (
-                                <span className={`text-[10px] font-bold flex items-center gap-0.5 mt-0.5 ${p.stock === 0 ? "text-[#FF453A]" : "text-amber-400"}`}>
-                                  ⚠️ {p.stock === 0 ? "Stok kosong (0)" : "Stok menipis / kritis"}
+                                <span className={`text-[10px] font-bold flex items-center gap-0.5 mt-0.5 ${p.stock === 0 ? "text-rose-400" : "text-amber-400"}`}>
+                                  ⚠️ {p.stock === 0 ? "Stok habis (0)" : "Stok menipis"}
                                 </span>
                               )}
                             </div>
@@ -367,7 +367,7 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
                               type="text"
                               value={editSku}
                               onChange={(e) => setEditSku(e.target.value)}
-                              className="w-full p-1.5 bg-[#121212] border border-[#2C2C2E] text-xs rounded-[4px] font-mono uppercase text-white outline-none focus:border-[#00E5FF]"
+                              className="w-full p-1.5 bg-[#121212] border border-[#2C2C2E] text-xs rounded-lg font-mono uppercase text-white outline-none focus:border-indigo-500"
                             />
                           ) : (
                             <span>{p.sku}</span>
@@ -383,7 +383,7 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
                                 type="text"
                                 value={editCostPrice}
                                 onChange={(e) => setEditCostPrice(formatNumberWithDots(e.target.value))}
-                                className="w-24 p-1.5 bg-[#121212] border border-[#2C2C2E] text-right text-xs rounded-[4px] text-white outline-none focus:border-[#00E5FF]"
+                                className="w-24 p-1.5 bg-[#121212] border border-[#2C2C2E] text-right text-xs rounded-lg text-white outline-none focus:border-indigo-500"
                               />
                             </div>
                           ) : (
@@ -400,11 +400,11 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
                                 type="text"
                                 value={editPrice}
                                 onChange={(e) => setEditPrice(formatNumberWithDots(e.target.value))}
-                                className="w-24 p-1.5 bg-[#121212] border border-[#2C2C2E] text-right text-xs rounded-[4px] text-white outline-none focus:border-[#00E5FF]"
+                                className="w-24 p-1.5 bg-[#121212] border border-[#2C2C2E] text-right text-xs rounded-lg text-white outline-none focus:border-indigo-500"
                               />
                             </div>
                           ) : (
-                            <span className="text-[#00E5FF]">Rp {p.price.toLocaleString("id-ID")}</span>
+                            <span className="text-indigo-300">Rp {p.price.toLocaleString("id-ID")}</span>
                           )}
                         </td>
  
@@ -417,7 +417,7 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
                                 type="text"
                                 value={editStockMinimum}
                                 onChange={(e) => setEditStockMinimum(formatNumberWithDots(e.target.value))}
-                                className="w-20 p-1.5 bg-[#121212] border border-[#2C2C2E] text-center text-xs rounded-[4px] font-mono text-white outline-none focus:border-[#00E5FF]"
+                                className="w-20 p-1.5 bg-[#121212] border border-[#2C2C2E] text-center text-xs rounded-lg font-mono text-white outline-none focus:border-indigo-500"
                               />
                               <span className="text-[10px] mt-0.5 text-white">Stok: {p.stock}</span>
                             </div>
@@ -426,23 +426,23 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
                               {isLowStock ? (
                                 <>
                                   <span className="relative flex h-2 w-2">
-                                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${p.stock === 0 ? "bg-[#FF453A]" : "bg-amber-400"}`}></span>
-                                    <span className={`relative inline-flex rounded-full h-2 w-2 ${p.stock === 0 ? "bg-[#FF453A]" : "bg-amber-400"}`}></span>
+                                    <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${p.stock === 0 ? "bg-rose-500" : "bg-amber-400"}`}></span>
+                                    <span className={`relative inline-flex rounded-full h-2 w-2 ${p.stock === 0 ? "bg-rose-500" : "bg-amber-400"}`}></span>
                                   </span>
-                                  <span className={`font-mono font-bold px-2.5 py-0.5 rounded-[4px] text-xs shadow-xs border ${
+                                  <span className={`font-mono font-bold px-2.5 py-0.5 rounded-md text-xs shadow-xs border ${
                                     p.stock === 0 
-                                      ? "text-[#FF453A] bg-[#FF453A]/10 border-[#FF453A]/20" 
+                                      ? "text-rose-400 bg-rose-500/10 border-rose-500/20" 
                                       : "text-amber-400 bg-amber-400/10 border-amber-500/20"
                                   }`}>
                                     {p.stock}
                                   </span>
                                 </>
                               ) : (
-                                <span className="font-mono font-bold px-2.5 py-0.5 rounded-[4px] text-xs text-[#32D74B] bg-[#32D74B]/10 border border-[#32D74B]/20">
+                                <span className="font-mono font-bold px-2.5 py-0.5 rounded-md text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20">
                                   {p.stock}
                                 </span>
                               )}
-                              <span className="text-[#2C2C2E] text-xs">/</span>
+                              <span className="text-slate-600 text-xs">/</span>
                               <span className="text-[#8C8C8E] font-mono text-xs">
                                 {p.stock_minimum}
                               </span>
@@ -456,14 +456,14 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
                             <div className="inline-flex items-center gap-1.5" id={`edit-actions-${p.id}`}>
                               <button
                                 onClick={() => handleUpdateProduct(p.id!)}
-                                className="p-1 px-2.5 text-[#32D74B] bg-[#32D74B]/10 hover:bg-[#32D74B]/20 border border-[#32D74B]/20 rounded-[4px] transition-colors cursor-pointer text-xs font-semibold flex items-center gap-1"
+                                className="p-1 px-2.5 text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 rounded-md transition-colors cursor-pointer text-xs font-semibold flex items-center gap-1"
                                 title="Simpan Perubahan"
                               >
                                 <Check className="h-3 w-3" /> Simpan
                               </button>
                               <button
                                 onClick={handleCancelEdit}
-                                className="p-1 px-2.5 text-[#8C8C8E] hover:text-white hover:bg-[#252525] border border-[#2C2C2E] rounded-[4px] transition-colors cursor-pointer text-xs"
+                                className="p-1 px-2.5 text-[#8C8C8E] hover:text-white hover:bg-slate-800 border border-slate-700 rounded-md transition-colors cursor-pointer text-xs"
                                 title="Batal"
                               >
                                 <X className="h-3 w-3" />
@@ -473,14 +473,14 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
                             <div className="inline-flex items-center gap-2" id={`default-actions-${p.id}`}>
                               <button
                                 onClick={() => handleStartEdit(p)}
-                                className="p-1.5 text-white hover:text-[#00E5FF] hover:bg-[#00E5FF]/10 rounded-[6px] border border-[#2C2C2E] transition-all cursor-pointer bg-[#121212]"
+                                className="p-1.5 text-slate-300 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg border border-slate-800 transition-all cursor-pointer bg-[#121212]"
                                 title="Ubah Spesifikasi"
                               >
                                 <Edit2 className="h-3.5 w-3.5" />
                               </button>
                               <button
                                 onClick={() => triggerDeleteProduct(p)}
-                                className="p-1.5 text-[#FF453A] hover:bg-rose-950/20 rounded-[6px] border border-rose-900/30 transition-all cursor-pointer"
+                                className="p-1.5 text-rose-400 hover:bg-rose-950/30 rounded-lg border border-rose-900/30 transition-all cursor-pointer"
                                 title="Hapus Produk"
                               >
                                 <Trash2 className="h-3.5 w-3.5" />
@@ -501,18 +501,18 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
       {/* Custom Confirmation Modal for Deleting Product */}
       {productToDelete && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-xs z-[9999] flex items-center justify-center p-4">
-          <div className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-[16px] max-w-sm w-full p-6 shadow-2xl relative overflow-hidden text-left text-white animate-fade-in">
+          <div className="bg-[#1E1E1E] border border-slate-800 rounded-2xl max-w-sm w-full p-6 shadow-2xl relative overflow-hidden text-left text-white animate-fade-in">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-rose-500/10 text-[#FF453A] border border-[#FF453A]/20 rounded-[6px] shrink-0">
-                <Trash2 className="h-6 w-6" />
+              <div className="p-2.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl shrink-0">
+                <Trash2 className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-bold text-white text-base tracking-[-0.03em]">Hapus Produk Permanen?</h3>
+                <h3 className="font-bold text-white text-base">Hapus Produk?</h3>
                 <p className="text-xs text-[#8C8C8E] mt-1.5 leading-relaxed">
                   Apakah Anda yakin ingin menghapus produk <strong className="text-white font-bold">{productToDelete.name}</strong> ({productToDelete.sku}) dari daftar katalog inventaris?
                 </p>
-                <div className="text-[11px] text-[#FF453A] mt-3 bg-rose-950/35 p-2.5 rounded border border-rose-900/40 leading-relaxed font-semibold">
-                  Tindakan ini bersifat permanen dan tidak dapat dibatalkan.
+                <div className="text-[11px] text-rose-400 mt-3 bg-rose-950/30 p-2.5 rounded-xl border border-rose-900/40 leading-relaxed font-semibold">
+                  Tindakan ini permanen dan menghapus catatan produk dari inventaris.
                 </div>
               </div>
             </div>
@@ -520,7 +520,7 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
             <div className="flex items-center justify-end gap-2 mt-6">
               <button
                 onClick={() => setProductToDelete(null)}
-                className="px-4 py-2 text-xs font-semibold text-[#8C8C8E] hover:text-white hover:bg-[#252525] border border-[#2C2C2E] rounded-[6px] transition-all cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-[#8C8C8E] hover:text-white hover:bg-slate-800 border border-slate-700 rounded-xl transition-all cursor-pointer"
               >
                 Batal
               </button>
@@ -530,7 +530,7 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
                   setProductToDelete(null);
                   executeDeleteProduct(currentProduct.id!);
                 }}
-                className="px-4 py-2 text-xs font-bold text-white bg-[#FF453A] hover:bg-rose-700 rounded-[6px] transition-all transform active:scale-[0.98] cursor-pointer shadow-sm"
+                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-500 rounded-xl transition-all transform active:scale-[0.98] cursor-pointer shadow-sm"
               >
                 Hapus Produk
               </button>
@@ -541,8 +541,8 @@ export default function ProductsView({ products, storeId }: ProductsViewProps) {
 
       {/* Toast Alert for Product Edit Form Validation */}
       {editValidationError && (
-        <div className="fixed bottom-4 right-4 z-[9999] bg-[#1E1E1E] border border-rose-900/40 text-[#FF453A] p-4 rounded-[8px] shadow-2xl flex items-start gap-2.5 max-w-sm animate-fade-in text-left">
-          <div className="p-1 bg-rose-500/10 rounded text-[#FF453A] mt-0.5 shrink-0">
+        <div className="fixed bottom-4 right-4 z-[9999] bg-[#1E1E1E] border border-rose-900/40 text-rose-400 p-4 rounded-xl shadow-2xl flex items-start gap-2.5 max-w-sm animate-fade-in text-left">
+          <div className="p-1 bg-rose-500/10 rounded text-rose-400 mt-0.5 shrink-0">
             <AlertCircle className="h-4 w-4" />
           </div>
           <div className="flex-1 min-w-0">

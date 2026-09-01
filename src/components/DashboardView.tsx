@@ -540,15 +540,15 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-[16px] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,229,255,0.12)] hover:border-[#00E5FF]/20 flex items-center justify-between"
+          className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-2xl p-5 transition-all duration-200 hover:border-indigo-500/30 flex items-center justify-between"
           id="stat-card-types"
         >
           <div>
             <span className="text-xs font-semibold text-[#8C8C8E] uppercase tracking-wider block">Total Varian Produk</span>
-            <span className="text-3xl font-bold tracking-[-0.03em] font-mono text-[#00E5FF] mt-2 block">{stats.totalTypes}</span>
+            <span className="text-3xl font-bold tracking-tight font-mono text-indigo-400 mt-2 block">{stats.totalTypes}</span>
             <span className="text-[11px] text-[#8C8C8E] mt-1 block">Varian produk terdaftar</span>
           </div>
-          <div className="p-3 bg-[#00E5FF]/10 text-[#00E5FF] rounded-lg">
+          <div className="p-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl">
             <Layers className="h-6 w-6" />
           </div>
         </motion.div>
@@ -558,15 +558,15 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-[16px] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,229,255,0.12)] hover:border-[#00E5FF]/20 flex items-center justify-between"
+          className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-2xl p-5 transition-all duration-200 hover:border-indigo-500/30 flex items-center justify-between"
           id="stat-card-total-stock relative"
         >
           <div>
             <span className="text-xs font-semibold text-[#8C8C8E] uppercase tracking-wider block">Total Unit Stok</span>
-            <span className="text-3xl font-bold tracking-[-0.03em] font-mono text-[#00E5FF] mt-2 block">{stats.totalStock}</span>
-            <span className="text-[11px] text-[#8C8C8E] mt-1 block">Total kuantitas fisik di gudang</span>
+            <span className="text-3xl font-bold tracking-tight font-mono text-indigo-400 mt-2 block">{stats.totalStock}</span>
+            <span className="text-[11px] text-[#8C8C8E] mt-1 block">Total kuantitas fisik di toko</span>
           </div>
-          <div className="p-3 bg-[#00E5FF]/10 text-[#00E5FF] rounded-lg">
+          <div className="p-3 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl">
             <Package className="h-6 w-6" />
           </div>
         </motion.div>
@@ -576,17 +576,17 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-[16px] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,229,255,0.12)] hover:border-[#00E5FF]/20 flex items-center justify-between"
+          className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-2xl p-5 transition-all duration-200 hover:border-amber-500/30 flex items-center justify-between"
           id="stat-card-low-stock"
         >
           <div>
             <span className="text-xs font-semibold text-[#8C8C8E] uppercase tracking-wider block">Stok Menipis</span>
-            <span className="text-3xl font-bold tracking-[-0.03em] font-mono text-amber-500 mt-2 block">
+            <span className="text-3xl font-bold tracking-tight font-mono text-amber-400 mt-2 block">
               {stats.lowStockCount}
             </span>
             <span className="text-[11px] text-[#8C8C8E] mt-1 block">Mencapai batas minimum</span>
           </div>
-          <div className="p-3 bg-amber-500/10 text-amber-500 rounded-lg">
+          <div className="p-3 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl">
             <AlertTriangle className="h-6 w-6" />
           </div>
         </motion.div>
@@ -596,30 +596,30 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-[16px] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,229,255,0.12)] hover:border-[#00E5FF]/20 flex items-center justify-between"
+          className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-2xl p-5 transition-all duration-200 hover:border-rose-500/30 flex items-center justify-between"
           id="stat-card-out-of-stock"
         >
           <div>
             <span className="text-xs font-semibold text-[#8C8C8E] uppercase tracking-wider block">Stok Habis (0)</span>
-            <span className="text-3xl font-bold tracking-[-0.03em] font-mono text-[#FF453A] mt-2 block">
+            <span className="text-3xl font-bold tracking-tight font-mono text-rose-400 mt-2 block">
               {stats.outOfStockCount}
             </span>
-            <span className="text-[11px] text-[#8C8C8E] mt-1 block">Segera restok ulang</span>
+            <span className="text-[11px] text-[#8C8C8E] mt-1 block">Perlu segera restok</span>
           </div>
-          <div className="p-3 bg-rose-500/10 text-[#FF453A] rounded-lg">
+          <div className="p-3 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl">
             <TrendingDown className="h-6 w-6" />
           </div>
         </motion.div>
       </div>
 
       {/* Extra helper financial banner card */}
-      <div className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-[16px] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,229,255,0.12)] hover:border-[#00E5FF]/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" id="store-value-banner">
+      <div className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-2xl p-5 transition-all duration-200 hover:border-indigo-500/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" id="store-value-banner">
         <div>
-          <h4 className="text-[15px] font-bold tracking-[-0.03em] text-white">Total Valuasi Aset Inventaris</h4>
-          <p className="text-xs text-[#8C8C8E] mt-0.5 animate-pulse">Dihitung otomatis (Kuantitas Stok × Harga Jual Produk) real-time</p>
+          <h4 className="text-sm font-bold tracking-tight text-white">Total Valuasi Aset Inventaris Toko</h4>
+          <p className="text-xs text-[#8C8C8E] mt-0.5">Akumulasi nilai riil seluruh unit produk berdasarkan harga jual</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="px-4 py-2 bg-[#121212] border border-[#2C2C2E] text-[#00E5FF] font-bold font-mono tracking-tight text-base rounded-[6px]">
+          <span className="px-4 py-2 bg-[#121212] border border-slate-800 text-indigo-400 font-bold font-mono tracking-tight text-base rounded-xl">
             Rp {stats.totalValue.toLocaleString("id-ID")}
           </span>
         </div>
@@ -629,14 +629,14 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6" id="financial-logger-trends-grid">
         
         {/* Logger Card Form - Left Column (5/12 width) */}
-        <div className="lg:col-span-5 bg-gradient-to-b from-[#1E1E1E] to-[#161618] border border-[#2C2C2E] rounded-[16px] p-6 transition-all duration-300 hover:shadow-[0_8px_32px_rgba(0,229,255,0.08)] hover:border-[#2C2C2E]/60 flex flex-col justify-between" id="transaction-logger-panel">
+        <div className="lg:col-span-5 bg-gradient-to-b from-[#1E1E1E] to-[#161618] border border-[#2C2C2E] rounded-2xl p-6 transition-all duration-300 hover:border-indigo-500/30 flex flex-col justify-between" id="transaction-logger-panel">
           <div>
-            <div className="flex items-center gap-2.5 mb-5 pb-3 border-b border-[#2C2C2E]/60" id="tx-log-header">
-              <div className="p-2.5 bg-[#00E5FF]/10 text-[#00E5FF] rounded-xl border border-[#00E5FF]/20">
+            <div className="flex items-center gap-3 mb-5 pb-3 border-b border-[#2C2C2E]/60" id="tx-log-header">
+              <div className="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
                 <DollarSign className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-[15px] font-bold tracking-tight text-white">Catat Log & Buku Tunai</h3>
+                <h3 className="text-sm font-bold tracking-tight text-white">Catat Transaksi Kas</h3>
                 <p className="text-[11px] text-[#8C8C8E] mt-0.5">Input mutasi stok sekaligus arus kas toko</p>
               </div>
             </div>
@@ -644,18 +644,18 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
             <form onSubmit={handleAddTransaction} className="space-y-4" id="tx-log-form">
               {/* Type Switcher */}
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-[#8C8C8E] block mb-2">Tipe Operasi</label>
-                <div className="grid grid-cols-2 gap-2 p-1.5 bg-[#121212] border border-[#2C2C2E] rounded-xl">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#8C8C8E] block mb-2">Tipe Transaksi</label>
+                <div className="grid grid-cols-2 gap-2 p-1 bg-[#121212] border border-[#2C2C2E] rounded-xl">
                   <button
                     type="button"
                     onClick={() => {
                       setTxType("income");
                       setSelectedProductId("none");
                     }}
-                    className={`py-2 text-[12px] font-bold rounded-lg transition-all duration-200 cursor-pointer ${
+                    className={`py-2 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer ${
                       txType === "income" 
-                        ? "bg-[#00E5FF] text-black shadow-[0_0_12px_rgba(0,229,255,0.35)] font-extrabold translate-y-[-1px]" 
-                        : "text-[#8C8C8E] hover:text-white hover:bg-[#1C1C1E]"
+                        ? "bg-indigo-600 text-white shadow-sm font-bold" 
+                        : "text-[#8C8C8E] hover:text-white hover:bg-slate-800"
                     }`}
                   >
                     <span className="flex items-center justify-center gap-1.5">
@@ -668,10 +668,10 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
                       setTxType("expense");
                       setSelectedProductId("none");
                     }}
-                    className={`py-2 text-[12px] font-bold rounded-lg transition-all duration-200 cursor-pointer ${
+                    className={`py-2 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer ${
                       txType === "expense" 
-                        ? "bg-[#FF453A] text-white shadow-[0_0_12px_rgba(255,69,58,0.35)] font-extrabold translate-y-[-1px]" 
-                        : "text-[#8C8C8E] hover:text-white hover:bg-[#1C1C1E]"
+                        ? "bg-rose-600 text-white shadow-sm font-bold" 
+                        : "text-[#8C8C8E] hover:text-white hover:bg-slate-800"
                     }`}
                   >
                     <span className="flex items-center justify-center gap-1.5">
@@ -698,7 +698,7 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
                         setTxAmount("");
                       }
                     }}
-                    className="w-full text-[13px] rounded-lg border border-[#2C2C2E] pl-3 pr-8 py-2.5 text-white focus:border-[#00E5FF] focus:ring-[3px] focus:ring-[#00E5FF]/12 outline-none bg-[#121212] transition-all duration-200 appearance-none cursor-pointer"
+                    className="w-full text-xs rounded-xl border border-[#2C2C2E] pl-3 pr-8 py-2.5 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none bg-[#121212] transition-all duration-200 appearance-none cursor-pointer"
                   >
                     <option value="none" className="bg-[#1E1E1E]">
                       {txType === "income" ? "Bukan dari Penjualan Produk (Manual)" : "Bukan untuk Restocking Produk (Manual)"}
@@ -731,7 +731,7 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
                       disabled={selectedProductId === "none"}
                       value={txQty}
                       onChange={(e) => setTxQty(e.target.value)}
-                      className="w-full text-[13px] font-mono rounded-lg border border-[#2C2C2E] pl-3 pr-8 py-2.5 text-white focus:border-[#00E5FF] focus:ring-[3px] focus:ring-[#00E5FF]/12 outline-none bg-[#121212] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="w-full text-xs font-mono rounded-xl border border-[#2C2C2E] pl-3 pr-8 py-2.5 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none bg-[#121212] transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
                       placeholder="1"
                     />
                     {selectedProductId === "none" && (
@@ -748,7 +748,7 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
                     Nominal (Rp)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12px] font-bold font-mono text-[#8C8C8E]/85 select-none pointer-events-none">Rp</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold font-mono text-[#8C8C8E]/85 select-none pointer-events-none">Rp</span>
                     <input
                       type="text"
                       inputMode="numeric"
@@ -756,7 +756,7 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
                       value={txAmount}
                       onChange={(e) => setTxAmount(formatNumberWithDots(e.target.value))}
                       placeholder="32.500"
-                      className="w-full text-[13px] font-mono rounded-lg border border-[#2C2C2E] pl-9 pr-3 py-2.5 text-white focus:border-[#00E5FF] focus:ring-[3px] focus:ring-[#00E5FF]/12 outline-none bg-[#121212] transition-all duration-200 disabled:opacity-75 placeholder-[#8C8C8E]/40"
+                      className="w-full text-xs font-mono rounded-xl border border-[#2C2C2E] pl-9 pr-3 py-2.5 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none bg-[#121212] transition-all duration-200 disabled:opacity-75 placeholder-[#8C8C8E]/40"
                     />
                   </div>
                 </div>
@@ -772,13 +772,13 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
                   required
                   value={txDesc}
                   onChange={(e) => setTxDesc(e.target.value)}
-                  placeholder={txType === "income" ? "Contoh: Penjualan soto ayam" : "Contoh: Pembelian lampu gudang"}
-                  className="w-full text-[13px] rounded-lg border border-[#2C2C2E] px-3.5 py-2.5 text-white focus:border-[#00E5FF] focus:ring-[3px] focus:ring-[#00E5FF]/12 outline-none bg-[#121212] transition-all duration-200 placeholder-[#8C8C8E]/40"
+                  placeholder={txType === "income" ? "Contoh: Penjualan kopi susu" : "Contoh: Pembelian cup & sedotan"}
+                  className="w-full text-xs rounded-xl border border-[#2C2C2E] px-3.5 py-2.5 text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none bg-[#121212] transition-all duration-200 placeholder-[#8C8C8E]/40"
                 />
               </div>
 
               {formError && (
-                <div className="p-3 bg-rose-950/30 text-[#FF453A] text-xs rounded-xl font-medium border border-rose-900/30 flex items-center gap-2 animate-fade-in shadow-[0_0_15px_rgba(255,69,58,0.05)]">
+                <div className="p-3 bg-rose-950/30 text-rose-300 text-xs rounded-xl font-medium border border-rose-900/30 flex items-center gap-2 animate-fade-in">
                   <AlertTriangle className="h-4 w-4 shrink-0" />
                   <span>{formError}</span>
                 </div>
@@ -787,17 +787,17 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
               <button
                 type="submit"
                 disabled={savingTx}
-                className={`w-full py-3 mt-3 text-xs font-bold uppercase tracking-wider rounded-lg cursor-pointer shadow-md transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-1.5 disabled:opacity-50 ${
+                className={`w-full py-3 mt-3 text-xs font-bold uppercase tracking-wider rounded-xl cursor-pointer shadow-md transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-1.5 disabled:opacity-50 ${
                   txType === "income" 
-                    ? "bg-[#00E5FF] text-black hover:bg-[#00E5FF]/90 hover:shadow-[0_0_20px_rgba(0,229,255,0.25)]" 
-                    : "bg-[#FF453A] text-white hover:bg-[#FF453A]/90 hover:shadow-[0_0_20px_rgba(255,69,58,0.25)]"
+                    ? "bg-indigo-600 text-white hover:bg-indigo-500" 
+                    : "bg-rose-600 text-white hover:bg-rose-500"
                 }`}
               >
                 {savingTx ? (
                   <>Menyimpan...</>
                 ) : (
                   <>
-                    <CheckCircle2 className="h-4 w-4" /> Catat Transaksi ({txType === "income" ? "Masuk" : "Keluar"})
+                    <CheckCircle2 className="h-4 w-4" /> Simpan Transaksi ({txType === "income" ? "Masuk" : "Keluar"})
                   </>
                 )}
               </button>
@@ -810,21 +810,21 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
           
           {/* BESTSELLING PRODUCT CARD OF THE WEEK */}
           <div 
-            className="bg-[#1E1E1E] border-2 border-[#00E5FF] rounded-[16px] p-5 shadow-[0_0_20px_rgba(0,229,255,0.15)] relative overflow-hidden group" 
+            className="bg-[#1E1E1E] border border-indigo-500/30 rounded-2xl p-5 relative overflow-hidden group shadow-lg" 
             id="bestselling-product-card"
           >
             <div className="absolute top-0 right-0 p-8 opacity-[0.03] transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform">
-              <ShoppingBag className="h-40 w-40 text-[#00E5FF]" />
+              <ShoppingBag className="h-40 w-40 text-indigo-400" />
             </div>
 
             <div className="flex items-center justify-between relative z-10">
               <div className="flex items-center gap-2">
-                <span className="p-1.5 bg-[#00E5FF]/15 text-[#00E5FF] rounded-lg">
+                <span className="p-1.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-lg">
                   <Sparkles className="h-4 w-4" />
                 </span>
-                <span className="text-[11px] font-bold text-[#00E5FF] uppercase tracking-wider block">Barang Terlaris Pekan Ini</span>
+                <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider block">Produk Terlaris Minggu Ini</span>
               </div>
-              <span className="text-[10px] font-mono px-2 py-0.5 bg-[#121212] border border-[#2C2C2E] text-[#8C8C8E] rounded-[6px]">
+              <span className="text-[10px] font-mono px-2 py-0.5 bg-[#121212] border border-[#2C2C2E] text-[#8C8C8E] rounded-lg">
                 7 Hari Terakhir
               </span>
             </div>
@@ -832,7 +832,7 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
             {bestsellingProduct ? (
               <div className="mt-4 relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4" id="bestseller-detail">
                 <div>
-                  <h4 className="text-lg font-bold tracking-[-0.03em] text-white">{bestsellingProduct.name}</h4>
+                  <h4 className="text-base font-bold tracking-tight text-white">{bestsellingProduct.name}</h4>
                   <div className="text-xs text-[#8C8C8E] mt-1 font-mono flex flex-wrap items-center gap-x-2">
                     <span>SKU: {bestsellingProduct.sku}</span>
                     <span>•</span>
@@ -841,8 +841,8 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="text-left sm:text-right">
-                    <span className="text-xl font-bold text-[#00E5FF] font-mono block">{bestsellingProduct.totalSold} Unit</span>
-                    <span className="text-[11px] text-[#8C8C8E] block font-sans">Total Omzet: Rp {(bestsellingProduct.totalSold * bestsellingProduct.price).toLocaleString("id-ID")}</span>
+                    <span className="text-xl font-bold text-indigo-400 font-mono block">{bestsellingProduct.totalSold} Unit Terjual</span>
+                    <span className="text-xs text-[#8C8C8E] block font-sans">Omzet: Rp {(bestsellingProduct.totalSold * bestsellingProduct.price).toLocaleString("id-ID")}</span>
                   </div>
                 </div>
               </div>
@@ -924,27 +924,27 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
       </div>
 
       {/* WEEKLY TRENDS GRAPH CONTAINER */}
-      <div className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-[16px] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,229,255,0.12)] hover:border-[#00E5FF]/20" id="weekly-trends-chart-panel">
+      <div className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-2xl p-6 transition-all duration-200 hover:border-indigo-500/30" id="weekly-trends-chart-panel">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4 pb-2 border-b border-[#2C2C2E]" id="weekly-trends-header">
           <div>
-            <h3 className="text-[15px] font-bold tracking-[-0.03em] text-white flex items-center gap-1.5 font-sans">
-              <Calendar className="h-4.5 w-4.5 text-[#00E5FF]" />
-              Tren Arus Kas Mingguan (Buku Tunai)
+            <h3 className="text-sm font-bold tracking-tight text-white flex items-center gap-2 font-sans">
+              <Calendar className="h-4.5 w-4.5 text-indigo-400" />
+              Tren Arus Kas Mingguan
             </h3>
-            <p className="text-xs text-[#8C8C8E] mt-0.5">Analisis visual pemasukan (penjualan) vs pengeluaran (restoking)</p>
+            <p className="text-xs text-[#8C8C8E] mt-0.5">Analisis visual pemasukan (penjualan) vs pengeluaran operasional</p>
           </div>
           <div className="flex items-center gap-4 text-xs font-semibold">
             <span className="flex items-center gap-1.5 text-white">
-              <span className="h-2.5 w-2.5 bg-[#00E5FF] rounded-full"></span> Pemasukan
+              <span className="h-2.5 w-2.5 bg-indigo-500 rounded-full"></span> Pemasukan
             </span>
             <span className="flex items-center gap-1.5 text-white">
-              <span className="h-2.5 w-2.5 bg-[#FF453A] rounded-full"></span> Pengeluaran
+              <span className="h-2.5 w-2.5 bg-rose-500 rounded-full"></span> Pengeluaran
             </span>
           </div>
         </div>
 
         {transactions.length === 0 ? (
-          <div className="py-12 text-center text-xs text-[#8C8C8E] bg-[#121212] rounded-[6px] border border-dashed border-[#2C2C2E]">
+          <div className="py-12 text-center text-xs text-[#8C8C8E] bg-[#121212] rounded-xl border border-dashed border-[#2C2C2E]">
             Arus kas akan ditampilkan setelah Anda merekam transaksi pertama di atas.
           </div>
         ) : (
@@ -953,12 +953,12 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
               <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#00E5FF" stopOpacity={0.25}/>
-                    <stop offset="95%" stopColor="#00E5FF" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#4F46E5" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#4F46E5" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorExpense" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#FF453A" stopOpacity={0.25}/>
-                    <stop offset="95%" stopColor="#FF453A" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#F43F5E" stopOpacity={0.25}/>
+                    <stop offset="95%" stopColor="#F43F5E" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#2C2C2E" />
@@ -978,14 +978,14 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
                 />
                 <Tooltip 
                   formatter={(val: number) => [`Rp ${val.toLocaleString("id-ID")}`, ""]}
-                  contentStyle={{ backgroundColor: "#1E1E1E", border: "1px solid #2C2C2E", borderRadius: "8px", color: "#ffffff", fontSize: "11px" }}
+                  contentStyle={{ backgroundColor: "#1E1E1E", border: "1px solid #2C2C2E", borderRadius: "12px", color: "#ffffff", fontSize: "11px" }}
                   labelStyle={{ fontWeight: "bold", marginBottom: "4px", color: "#ffffff" }}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="income" 
                   name="Pemasukan"
-                  stroke="#00E5FF" 
+                  stroke="#6366F1" 
                   strokeWidth={2}
                   fillOpacity={1} 
                   fill="url(#colorIncome)" 
@@ -994,7 +994,7 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
                   type="monotone" 
                   dataKey="expense" 
                   name="Pengeluaran"
-                  stroke="#FF453A" 
+                  stroke="#F43F5E" 
                   strokeWidth={2}
                   fillOpacity={1} 
                   fill="url(#colorExpense)" 
@@ -1006,31 +1006,31 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
       </div>
 
       {/* Peringatan Stok Menipis Section (Client-Side Filtering) */}
-      <div className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-[16px] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,229,255,0.12)] hover:border-[#00E5FF]/20" id="alerts-section">
+      <div className="bg-[#1E1E1E] border border-[#2C2C2E] rounded-2xl p-6 transition-all duration-200 hover:border-amber-500/30" id="alerts-section">
         <div className="flex items-center justify-between mb-4 pb-2 border-b border-[#2C2C2E]" id="alerts-heading-panel">
           <div>
-            <h3 className="text-[15px] font-bold tracking-[-0.03em] text-white flex items-center gap-2 font-sans">
-              <AlertTriangle className="h-4.5 w-4.5 text-amber-500" />
+            <h3 className="text-sm font-bold tracking-tight text-white flex items-center gap-2 font-sans">
+              <AlertTriangle className="h-4.5 w-4.5 text-amber-400" />
               Peringatan Stok Menipis
             </h3>
-            <p className="text-xs text-[#8C8C8E] mt-0.5">Datar item dengan kuantitas saat ini berada di bawah batas minimum</p>
+            <p className="text-xs text-[#8C8C8E] mt-0.5">Daftar item dengan kuantitas saat ini berada di bawah batas minimum</p>
           </div>
-          <span className="text-[11px] px-2.5 py-0.5 bg-[#2D1F10] border border-amber-500/20 text-amber-400 font-bold rounded-full">
-            {stats.thinStockItems.length} Produk Bermasalah
+          <span className="text-xs px-2.5 py-0.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold rounded-lg">
+            {stats.thinStockItems.length} Produk Perlu Restok
           </span>
         </div>
 
         {stats.thinStockItems.length === 0 ? (
-          <div className="py-8 text-center flex flex-col items-center justify-center space-y-2 bg-[#121212] rounded-[6px] border border-dashed border-[#2C2C2E]" id="alerts-empty-state">
-            <CheckCircle2 className="h-9 w-9 text-[#32D74B]" />
-            <h4 className="text-[13px] font-semibold text-white">Persediaan Sangat Baik</h4>
-            <p className="text-[11px] text-[#8C8C8E] max-w-sm">Semua item berada di tingkat aman di atas batas stok minimum.</p>
+          <div className="py-8 text-center flex flex-col items-center justify-center space-y-2 bg-[#121212] rounded-xl border border-dashed border-[#2C2C2E]" id="alerts-empty-state">
+            <CheckCircle2 className="h-9 w-9 text-emerald-400" />
+            <h4 className="text-sm font-semibold text-white">Persediaan Sangat Baik</h4>
+            <p className="text-xs text-[#8C8C8E] max-w-sm">Semua item berada di tingkat aman di atas batas stok minimum.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-[6px] border border-[#2C2C2E] bg-[#121212]" id="alerts-table-scroll">
+          <div className="overflow-x-auto rounded-xl border border-[#2C2C2E] bg-[#121212]" id="alerts-table-scroll">
             <table className="w-full text-left border-collapse" id="alerts-products-table">
               <thead>
-                <tr className="bg-[#1A1A1A] border-b border-[#2C2C2E] text-[11px] font-bold text-[#8C8C8E] uppercase tracking-wider">
+                <tr className="bg-slate-900/60 border-b border-[#2C2C2E] text-[11px] font-bold text-[#8C8C8E] uppercase tracking-wider">
                   <th className="py-3 px-4">Nama Produk</th>
                   <th className="py-3 px-4">SKU</th>
                   <th className="py-3 px-4 text-center">Batas Minimum</th>
@@ -1038,39 +1038,39 @@ export default function DashboardView({ products, storeId }: DashboardViewProps)
                   <th className="py-3 px-4">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#2C2C2E] text-[13px]">
+              <tbody className="divide-y divide-[#2C2C2E] text-xs">
                 {stats.thinStockItems.map((product) => {
                   const isOutOfStock = product.stock === 0;
                   return (
                     <tr 
                       key={product.id} 
-                      className={`hover:bg-[#252525] transition-colors ${
-                        isOutOfStock ? "bg-[#3A1C1C] text-[#FF453A] border-l-4 border-[#FF453A]" : "bg-[#2D2210]/20"
+                      className={`hover:bg-slate-900/40 transition-colors ${
+                        isOutOfStock ? "bg-rose-950/20 text-rose-300" : "bg-amber-950/15"
                       }`}
                     >
-                      <td className="py-3 px-4 font-bold text-white">
+                      <td className="py-3.5 px-4 font-bold text-white">
                         {product.name}
                       </td>
-                      <td className="py-3 px-4 text-[11px] font-mono text-[#8C8C8E]">
+                      <td className="py-3.5 px-4 text-xs font-mono text-[#8C8C8E]">
                         {product.sku}
                       </td>
-                      <td className="py-3 px-4 text-center font-mono text-[#8C8C8E]">
+                      <td className="py-3.5 px-4 text-center font-mono text-[#8C8C8E]">
                         {product.stock_minimum}
                       </td>
-                      <td className="py-3 px-4 text-center">
-                        <span className={`font-mono font-bold px-2 py-0.5 rounded-[4px] ${
-                          isOutOfStock ? "text-[#FF453A] bg-[#FF453A]/15" : "text-amber-500 bg-amber-500/15"
+                      <td className="py-3.5 px-4 text-center">
+                        <span className={`font-mono font-bold px-2.5 py-0.5 rounded-md ${
+                          isOutOfStock ? "text-rose-400 bg-rose-500/15 border border-rose-500/20" : "text-amber-400 bg-amber-500/15 border border-amber-500/20"
                         }`}>
                           {product.stock}
                         </span>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-3.5 px-4">
                         {isOutOfStock ? (
-                          <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 text-[#FF453A] bg-[#FF453A]/10 border border-[#FF453A]/20 rounded-[4px]">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-md">
                             HABIS TOTAL
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 text-amber-400 bg-amber-450/10 border border-amber-500/20 rounded-[4px]">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 text-amber-400 bg-amber-400/10 border border-amber-500/20 rounded-md">
                             MENIPIS
                           </span>
                         )}
