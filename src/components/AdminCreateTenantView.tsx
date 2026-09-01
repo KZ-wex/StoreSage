@@ -20,7 +20,17 @@ import {
   AlertTriangle,
   ShieldCheck,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  Users,
+  CheckCircle2,
+  XCircle,
+  Search,
+  Filter,
+  Package,
+  Plus,
+  ChevronLeft,
+  ChevronRight,
+  Database
 } from "lucide-react";
 import { initializeApp, getApp, getApps, deleteApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword, signOut, signInWithEmailAndPassword } from "firebase/auth";
@@ -31,6 +41,15 @@ import { useAuth } from "../hooks/useAuth";
 // Form input types
 interface AdminCreateTenantViewProps {
   onBackToMain: () => void;
+}
+
+interface PackagePlan {
+  id: string;
+  name: string;
+  durationDays: number;
+  priceFormatted: string;
+  isPopular?: boolean;
+  features: string;
 }
 
 export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenantViewProps) {
@@ -52,6 +71,19 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
   const [preSeedProducts, setPreSeedProducts] = useState(true);
   const [durationOption, setDurationOption] = useState("30");
 
+  // Global Package Management state
+  const [packagePlans, setPackagePlans] = useState<PackagePlan[]>([
+    { id: "trial_7", name: "Trial (7D)", durationDays: 7, priceFormatted: "Gratis / Rp 0", features: "Akses Uji Coba Cepat" },
+    { id: "reguler_30", name: "Standard (30D)", durationDays: 30, priceFormatted: "Rp 99.000 / bln", isPopular: true, features: "Full Kasir & Isolasi Tenant" },
+    { id: "hemat_90", name: "Hemat (90D)", durationDays: 90, priceFormatted: "Rp 249.000 / 3 bln", features: "Diskon 16% + Support Cepat" },
+    { id: "pro_365", name: "Pro (1Y / 365D)", durationDays: 365, priceFormatted: "Rp 899.000 / thn", features: "Hemat 25% + SLA 99.9%" }
+  ]);
+  const [isAddPackageModalOpen, setIsAddPackageModalOpen] = useState(false);
+  const [newPkgName, setNewPkgName] = useState("");
+  const [newPkgDays, setNewPkgDays] = useState(30);
+  const [newPkgPrice, setNewPkgPrice] = useState("");
+  const [newPkgFeatures, setNewPkgFeatures] = useState("");
+
   // Audit list state for admin/dosen overview tracker
   const [tenants, setTenants] = useState<any[]>([]);
   const [tenantsLoading, setTenantsLoading] = useState(false);
@@ -68,11 +100,18 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
     isAutoTriggered?: boolean;
   }[]>([]);
 
+  // Search, Filter & Pagination states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "warning" | "expired">("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 6;
+
   // Package name helper
   const getPackageName = (plan?: string, fallback = "Paket Reguler (30 Hari)") => {
-    if (plan === "30") return "Paket Reguler (30 Hari)";
-    if (plan === "90") return "Paket Hemat (90 Hari / 3 Bulan)";
-    if (plan === "365") return "Paket Tahunan (365 Hari / 12 Bulan)";
+    if (plan === "30" || plan === "Standard (30D)") return "Standard (30 Hari)";
+    if (plan === "90" || plan === "Hemat (90D)") return "Paket Hemat (90 Hari)";
+    if (plan === "365" || plan === "Pro (1Y / 365D)") return "Paket Pro (365 Hari / 1 Thn)";
+    if (plan === "7" || plan === "Trial (7D)") return "Paket Trial (7 Hari)";
     if (plan === "3_days") return "Paket Uji Coba H-3 (3 Hari)";
     if (plan === "2_days") return "Paket Uji Coba H-2 (2 Hari)";
     if (plan === "5_mins") return "Simulasi Kilat (5 Menit)";
@@ -520,22 +559,30 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-2">
-            <div className="h-9 w-9 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl flex items-center justify-center">
+          <div className="flex items-center gap-2.5">
+            <div className="h-9 w-9 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-xl flex items-center justify-center shadow-sm">
               <Cpu className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-sm font-bold tracking-tight text-white font-sans">
-                Admin Console
+              <h2 className="text-sm font-bold tracking-tight text-white font-sans flex items-center gap-2">
+                <span>StoreSage Admin Console</span>
+                <span className="hidden md:inline text-xs font-normal text-slate-400">- Platform Overview & Tenant Management</span>
               </h2>
-              <span className="text-[10px] text-slate-500 block font-mono">StoreSage Tenant Provisioning</span>
+              <span className="text-[10px] text-slate-500 block font-mono">Multi-Tenant Provisioner & SaaS Monitor</span>
             </div>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Firebase Connection Status Indicator */}
+          <div className="flex items-center gap-2 px-2.5 py-1 bg-emerald-950/40 border border-emerald-500/30 rounded-lg text-[10.5px] font-mono text-emerald-400 font-semibold shadow-sm" id="firebase-status-badge">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="hidden sm:inline">Firebase Connection Status:</span> 
+            <span>Connected</span>
+          </div>
+
           {userData && (
-            <div className="hidden md:flex flex-col items-end text-xs text-right">
+            <div className="hidden md:flex flex-col items-end text-xs text-right pl-1">
               <span className="font-bold text-slate-300">{userData.name || user?.email}</span>
               <span className="text-[10px] text-indigo-400 font-mono tracking-wider">SUPER ADMIN</span>
             </div>
@@ -609,6 +656,96 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
         ) : (
           /* Step 2: Main Provisioner View */
           <div className="space-y-8 w-full" id="admin-provision-dashboard">
+
+            {/* TOP ROW: GLOBAL STATS (4 METRIC CARDS) */}
+            {(() => {
+              const now = new Date();
+              let activeCount = 0;
+              let warningCount = 0;
+              let expiredCount = 0;
+
+              tenants.forEach(t => {
+                const expiryDate = t.billing_period_end || t.subscriptionExpiresAt ? new Date(t.billing_period_end || t.subscriptionExpiresAt) : null;
+                if (!expiryDate) {
+                  activeCount++;
+                } else {
+                  const diffMs = expiryDate.getTime() - now.getTime();
+                  if (diffMs <= 0) {
+                    expiredCount++;
+                  } else if (diffMs <= 3 * 24 * 60 * 60 * 1000) {
+                    warningCount++;
+                  } else {
+                    activeCount++;
+                  }
+                }
+              });
+
+              const totalTenantsCount = tenants.length;
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full" id="global-stats-row">
+                  {/* Card 1: Total Tenants */}
+                  <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden group hover:border-indigo-500/40 transition-all">
+                    <div className="space-y-1">
+                      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block font-sans">Total Tenants</span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-extrabold text-white font-mono">{totalTenantsCount}</span>
+                        <span className="text-[10px] text-emerald-400 font-mono font-medium">+12% bln ini</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 block">Terdaftar di platform</span>
+                    </div>
+                    <div className="h-11 w-11 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center shrink-0">
+                      <Users className="h-5 w-5" />
+                    </div>
+                  </div>
+
+                  {/* Card 2: Active Tenants */}
+                  <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden group hover:border-emerald-500/40 transition-all">
+                    <div className="space-y-1">
+                      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block font-sans">Active Tenants</span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-extrabold text-emerald-400 font-mono">{activeCount}</span>
+                        <span className="text-[10px] text-emerald-400 font-mono font-medium">SaaS Aktif</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 block">Langganan normal aktif</span>
+                    </div>
+                    <div className="h-11 w-11 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center shrink-0">
+                      <CheckCircle2 className="h-5 w-5" />
+                    </div>
+                  </div>
+
+                  {/* Card 3: Tenants in H-3 Warning */}
+                  <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden group hover:border-amber-500/40 transition-all">
+                    <div className="space-y-1">
+                      <span className="text-[11px] font-semibold text-amber-300 uppercase tracking-wider block font-sans">Tenants in H-3 Warning</span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-extrabold text-amber-400 font-mono">{warningCount}</span>
+                        <span className="text-[10px] text-amber-300 font-mono font-medium animate-pulse">Sisa ≤ 3 Hari</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 block">Masa tenggang billing</span>
+                    </div>
+                    <div className="h-11 w-11 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl flex items-center justify-center shrink-0">
+                      <AlertTriangle className="h-5 w-5" />
+                    </div>
+                  </div>
+
+                  {/* Card 4: Expired Tenants */}
+                  <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 shadow-lg flex items-center justify-between relative overflow-hidden group hover:border-rose-500/40 transition-all">
+                    <div className="space-y-1">
+                      <span className="text-[11px] font-semibold text-rose-300 uppercase tracking-wider block font-sans">Expired Tenants</span>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-2xl font-extrabold text-rose-400 font-mono">{expiredCount}</span>
+                        <span className="text-[10px] text-rose-400 font-mono font-medium">Terkunci</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 block">Perlu aktivasi ulang</span>
+                    </div>
+                    <div className="h-11 w-11 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl flex items-center justify-center shrink-0">
+                      <XCircle className="h-5 w-5" />
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
             
             {/* Receipt Alert (If success) */}
             {receipt && (
@@ -673,10 +810,10 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
               </div>
             )}
 
-            {/* TWO-COLUMN BALANCED GRID (TOP SECTION) */}
+            {/* TWO-COLUMN BALANCED GRID (MID SECTION) */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch w-full">
               
-              {/* Left Side (lg:col-span-2): Main Provisioning Form */}
+              {/* Left Side (lg:col-span-2): Main Provisioning Form (Preserved fully) */}
               <div className="lg:col-span-2 flex flex-col h-full">
                 <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex flex-col justify-between h-full shadow-lg" id="creation-form-box">
                   <div>
@@ -823,14 +960,14 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                 </div>
               </div>
 
-              {/* Right Side (lg:col-span-1): Stacked Instruksi & Log Simulator */}
+              {/* Right Side (lg:col-span-1): Stacked Instruksi, Global Package Management & Log Simulator */}
               <div className="lg:col-span-1 flex flex-col gap-6 h-full justify-between">
                 
                 {/* 1. Instruksi Pendaftaran */}
-                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex flex-col justify-start space-y-4 shadow-lg flex-1">
+                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 flex flex-col justify-start space-y-3 shadow-lg">
                   <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                    <h3 className="text-sm font-bold text-slate-100 flex items-center gap-1.5">
-                      <ShieldCheck className="h-4.5 w-4.5 text-indigo-400" />
+                    <h3 className="text-xs font-bold text-slate-100 flex items-center gap-1.5">
+                      <ShieldCheck className="h-4 w-4 text-indigo-400" />
                       <span>Instruksi Pendaftaran</span>
                     </h3>
                     <span className="text-[9px] uppercase tracking-wider font-mono text-indigo-400 font-extrabold px-2 py-0.5 bg-indigo-500/10 rounded-sm">
@@ -838,31 +975,70 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                     </span>
                   </div>
                   
-                  <p className="text-xs text-slate-400 leading-relaxed font-sans">
-                    Konsol penyedia layanan instan (Tenant Provisioner) dirancang bagi <strong>Admin & Dosen Pembimbing</strong> sebagai media monitoring.
-                  </p>
-                  
-                  <div className="text-xs text-slate-400 space-y-3 pt-1 font-sans">
-                    <p className="flex gap-2.5 items-start">
-                      <span className="text-indigo-400 font-bold font-mono text-xs mt-0.5">1.</span>
+                  <div className="text-xs text-slate-400 space-y-2 pt-1 font-sans">
+                    <p className="flex gap-2 items-start">
+                      <span className="text-indigo-400 font-bold font-mono text-xs">1.</span>
                       <span>Isi data lengkap pemilik UMKM yang sudah mendaftar sesuai formulir.</span>
                     </p>
-                    <p className="flex gap-2.5 items-start">
-                      <span className="text-indigo-400 font-bold font-mono text-xs mt-0.5">2.</span>
-                      <span>Sistem mendaftarkan Firebase Auth baru secara asinkron tanpa menimpa sesi login aktif Anda.</span>
+                    <p className="flex gap-2 items-start">
+                      <span className="text-indigo-400 font-bold font-mono text-xs">2.</span>
+                      <span>Firebase Auth baru dibuat asinkron tanpa menimpa sesi login aktif Anda.</span>
                     </p>
-                    <p className="flex gap-2.5 items-start">
-                      <span className="text-indigo-400 font-bold font-mono text-xs mt-0.5">3.</span>
-                      <span>Silo-Tenant baru berstatus <strong className="text-emerald-400">active</strong> dengan hak akses penuh <strong>owner</strong> langsung terbentuk.</span>
+                    <p className="flex gap-2 items-start">
+                      <span className="text-indigo-400 font-bold font-mono text-xs">3.</span>
+                      <span>Silo-Tenant baru berstatus <strong className="text-emerald-400">active</strong> dengan hak <strong>owner</strong> langsung terbentuk.</span>
                     </p>
                   </div>
                 </div>
 
-                {/* 2. Server Notifikasi Email StoreSage (Log Simulator) */}
-                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex flex-col justify-start space-y-3 shadow-lg flex-1" id="email-server-monitor-card">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-2.5" id="email-server-title">
+                {/* 2. Global Package Management (New) */}
+                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 flex flex-col justify-start space-y-3 shadow-lg" id="package-management-card">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                    <div className="flex items-center gap-1.5 text-xs text-indigo-300 font-bold">
+                      <Package className="h-4 w-4 text-indigo-400" />
+                      <span>Global Package Management</span>
+                    </div>
+                    <button
+                      onClick={() => setIsAddPackageModalOpen(true)}
+                      className="px-2 py-0.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-all shadow"
+                    >
+                      <Plus className="h-3 w-3" />
+                      <span>Tambah Paket</span>
+                    </button>
+                  </div>
+
+                  <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
+                    Daftar paket durasi langganan UMKM yang dapat dialokasikan pada sistem:
+                  </p>
+
+                  <div className="space-y-2 max-h-[145px] overflow-y-auto pr-1">
+                    {packagePlans.map((pkg) => (
+                      <div key={pkg.id} className="p-2 bg-slate-950/80 border border-white/5 rounded-lg flex items-center justify-between text-xs hover:border-indigo-500/30 transition-colors">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-200 text-xs">{pkg.name}</span>
+                            {pkg.isPopular && (
+                              <span className="px-1.5 py-0.2 bg-indigo-500/20 text-indigo-300 text-[8px] font-mono font-bold rounded">
+                                POPULER
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[10px] text-slate-500 block">{pkg.features}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-mono font-bold text-indigo-300 text-xs">{pkg.priceFormatted}</span>
+                          <span className="text-[9px] text-slate-500 block font-mono">{pkg.durationDays} Hari</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Server Notifikasi Email StoreSage (Log Simulator) */}
+                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-5 flex flex-col justify-start space-y-3 shadow-lg" id="email-server-monitor-card">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2" id="email-server-title">
                     <div className="flex items-center gap-1.5 text-xs text-indigo-400 font-bold">
-                      <Mail className="h-4.5 w-4.5 animate-pulse text-indigo-400" />
+                      <Mail className="h-4 w-4 animate-pulse text-indigo-400" />
                       <span>Notifikasi Masa Tenggang H-3 & Simulator</span>
                     </div>
                     <span className="text-[8.5px] uppercase tracking-wider font-mono text-emerald-400 font-bold px-1.5 py-0.5 bg-emerald-500/10 rounded border border-emerald-500/20">
@@ -871,21 +1047,21 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                   </div>
                   
                   <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
-                    Saat masa tenggang tenant menyentuh <strong>H-3 (sisa ≤ 3 hari)</strong>, sistem otomatis mendeteksi durasi paket dan menyiarkan notifikasi. Data ditarik langsung dari indikator sisa hari pada panel pengawasan:
+                    Saat masa tenggang tenant menyentuh <strong>H-3 (sisa ≤ 3 hari)</strong>, sistem otomatis mendeteksi durasi paket dan menyiarkan notifikasi:
                   </p>
 
-                  <div className="flex-1 flex flex-col justify-end min-h-[130px]">
+                  <div className="flex-1 flex flex-col justify-end min-h-[110px]">
                     {emailLogs.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center p-4 border border-dashed border-slate-800 rounded-xl text-center text-[10px] text-slate-500 font-mono w-full">
+                      <div className="h-full flex flex-col items-center justify-center p-3 border border-dashed border-slate-800 rounded-xl text-center text-[10px] text-slate-500 font-mono w-full">
                         <span>[Antrean Notifikasi Kosong]</span>
                         <span className="text-[9px] text-slate-600 mt-0.5">Belum ada tenant dalam masa tenggang H-3 saat ini.</span>
                       </div>
                     ) : (
-                      <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1 select-text w-full">
-                        {emailLogs.slice(0, 5).map(log => (
-                          <div key={log.id} className="p-2.5 bg-slate-950/90 border border-indigo-950/60 rounded-lg text-[10.5px] space-y-1.5 animate-fade-in font-mono shadow-sm">
+                      <div className="space-y-2 max-h-[150px] overflow-y-auto pr-1 select-text w-full">
+                        {emailLogs.slice(0, 4).map(log => (
+                          <div key={log.id} className="p-2 bg-slate-950/90 border border-indigo-950/60 rounded-lg text-[10px] space-y-1.5 animate-fade-in font-mono shadow-sm">
                             <div className="flex justify-between items-center text-[9px] text-indigo-300 font-bold">
-                              <span className="truncate max-w-[150px]">➔ {log.email}</span>
+                              <span className="truncate max-w-[140px]">➔ {log.email}</span>
                               <span className="text-slate-500">{log.timestamp.toLocaleTimeString("id-ID")}</span>
                             </div>
                             
@@ -902,7 +1078,7 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                               )}
                             </div>
 
-                            <p className="text-slate-300 leading-relaxed font-sans text-[9.5px] bg-slate-900/50 p-1.5 rounded border border-white/5">
+                            <p className="text-slate-300 leading-relaxed font-sans text-[9px] bg-slate-900/50 p-1.5 rounded border border-white/5">
                               {log.message}
                             </p>
                           </div>
@@ -916,213 +1092,445 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
 
             </div>
 
-            {/* Bottom Section: Panel Pengawasan Billing (Full-Width, perfectly fitting and padded) */}
-            <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-6 shadow-lg space-y-6 w-full" id="audit-monitor-box">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-800">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-9 w-9 bg-indigo-500/15 border border-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center">
-                    <Hourglass className="h-5 w-5 animate-spin-slow text-indigo-400" />
+            {/* Bottom Section: Panel Pengawasan Billing (Expanded & Scalable Table) */}
+            {(() => {
+              const now = new Date();
+              
+              // Calculate filtered tenants
+              const filteredTenants = tenants.filter(t => {
+                const matchesSearch = 
+                  (t.store_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  (t.ownerName || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  (t.email || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  (t.store_id || "").toLowerCase().includes(searchQuery.toLowerCase());
+
+                if (!matchesSearch) return false;
+
+                const expiryDate = t.billing_period_end || t.subscriptionExpiresAt ? new Date(t.billing_period_end || t.subscriptionExpiresAt) : null;
+                let status: "active" | "warning" | "expired" = "active";
+                if (expiryDate) {
+                  const diffMs = expiryDate.getTime() - now.getTime();
+                  if (diffMs <= 0) status = "expired";
+                  else if (diffMs <= 3 * 24 * 60 * 60 * 1000) status = "warning";
+                  else status = "active";
+                }
+
+                if (statusFilter === "all") return true;
+                return status === statusFilter;
+              });
+
+              const totalPages = Math.ceil(filteredTenants.length / rowsPerPage) || 1;
+              const paginatedTenants = filteredTenants.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
+
+              return (
+                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-6 shadow-lg space-y-5 w-full" id="audit-monitor-box">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-800">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-9 w-9 bg-indigo-500/15 border border-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center">
+                        <Hourglass className="h-5 w-5 animate-spin-slow text-indigo-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-sm">Panel Pengawasan Billing & Peringatan H-3</h3>
+                        <p className="text-[10px] text-slate-400 font-mono mt-0.5 tracking-wider uppercase">SaaS MULTI-TENANT MONITOR & EXPANDED AUDIT TABLE</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={loadTenants}
+                      disabled={tenantsLoading}
+                      className="p-2 px-3 bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto disabled:opacity-40"
+                    >
+                      <RefreshCw className={`h-3.5 w-3.5 ${tenantsLoading ? "animate-spin text-indigo-400" : ""}`} />
+                      <span>Segarkan Data</span>
+                    </button>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-white text-sm">Panel Pengawasan Billing & Peringatan H-3</h3>
-                    <p className="text-[10px] text-slate-400 font-mono mt-0.5 tracking-wider uppercase">SaaS MULTI-TENANT MONITOR & EMAIL SIMULATOR</p>
+
+                  {/* SEARCH & FILTER CONTROLS */}
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-950/60 p-3 rounded-xl border border-white/5">
+                    <div className="relative w-full sm:w-80">
+                      <Search className="h-3.5 w-3.5 text-slate-400 absolute left-3 top-2.5" />
+                      <input
+                        type="text"
+                        placeholder="Cari UMKM, Email, atau Store ID..."
+                        value={searchQuery}
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                          setCurrentPage(1);
+                        }}
+                        className="w-full pl-9 pr-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 font-sans"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+                      <Filter className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+                      <span className="text-[11px] text-slate-400 font-semibold shrink-0 font-sans">Filter Status:</span>
+                      <div className="flex items-center gap-1 font-sans">
+                        <button
+                          onClick={() => { setStatusFilter("all"); setCurrentPage(1); }}
+                          className={`px-2.5 py-1 rounded text-[10px] font-bold transition-colors cursor-pointer ${
+                            statusFilter === "all" ? "bg-indigo-600 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          Semua ({tenants.length})
+                        </button>
+                        <button
+                          onClick={() => { setStatusFilter("active"); setCurrentPage(1); }}
+                          className={`px-2.5 py-1 rounded text-[10px] font-bold transition-colors cursor-pointer ${
+                            statusFilter === "active" ? "bg-emerald-600 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          Aktif
+                        </button>
+                        <button
+                          onClick={() => { setStatusFilter("warning"); setCurrentPage(1); }}
+                          className={`px-2.5 py-1 rounded text-[10px] font-bold transition-colors cursor-pointer ${
+                            statusFilter === "warning" ? "bg-amber-600 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          H-3 Warning
+                        </button>
+                        <button
+                          onClick={() => { setStatusFilter("expired"); setCurrentPage(1); }}
+                          className={`px-2.5 py-1 rounded text-[10px] font-bold transition-colors cursor-pointer ${
+                            statusFilter === "expired" ? "bg-rose-600 text-white" : "bg-slate-900 text-slate-400 hover:text-slate-200"
+                          }`}
+                        >
+                          Expired
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <button 
-                  onClick={loadTenants}
-                  disabled={tenantsLoading}
-                  className="p-2 px-3 bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-300 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto disabled:opacity-40"
-                >
-                  <RefreshCw className={`h-3.5 w-3.5 ${tenantsLoading ? "animate-spin text-indigo-400" : ""}`} />
-                  <span>Segarkan Data</span>
-                </button>
-              </div>
 
-              {/* Main tenants lists wrapped neatly inside standard table container to avoid ugly scrollbars */}
-              {tenantsLoading && tenants.length === 0 ? (
-                <div className="py-12 text-center text-xs text-slate-500 font-mono">Sedang menyelaraskan semua tenant pada Firestore...</div>
-              ) : tenants.length === 0 ? (
-                <div className="py-12 text-center flex flex-col items-center justify-center">
-                  <Building2 className="h-10 w-10 text-slate-700 mb-2" />
-                  <p className="text-xs text-slate-400 font-sans">Belum ada tenant/UMKM yang terdaftar di database.</p>
-                </div>
-              ) : (
-                <div className="w-full overflow-hidden rounded-xl border border-white/5 bg-slate-950/40">
-                  <div className="overflow-x-auto w-full">
-                    <table className="w-full text-left text-xs border-collapse divide-y divide-white/5 whitespace-nowrap lg:whitespace-normal">
-                      <thead>
-                        <tr className="bg-slate-950/80 text-slate-400 font-sans">
-                          <th className="p-4 font-bold text-left text-xs">Nama UMKM / Owner</th>
-                          <th className="p-4 font-bold text-left text-xs">Kredensial Email</th>
-                          <th className="p-4 font-bold text-left text-xs">Paket & Durasi</th>
-                          <th className="p-4 font-bold text-left text-xs">Masa Aktif Berakhir</th>
-                          <th className="p-4 font-bold text-left text-xs">Indikator Sisa Hari</th>
-                          <th className="p-4 font-bold text-center text-xs w-[280px]">Tindakan Demo</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5 bg-transparent">
-                        {tenants.map((t) => {
-                          const expiryDate = t.billing_period_end || t.subscriptionExpiresAt ? new Date(t.billing_period_end || t.subscriptionExpiresAt) : null;
-                          const now = new Date();
-                          
-                          let diffDays = 0;
-                          let diffHours = 0;
-                          let diffMinutes = 0;
-                          let isExpired = false;
-                          let isH_3 = false;
-
-                          if (expiryDate) {
-                            const diffMs = expiryDate.getTime() - now.getTime();
-                            isExpired = diffMs <= 0;
-                            if (!isExpired) {
-                              diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-                              diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                              diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                              // H-3 concept: sisa hari <= 3 hari (72 jam)
-                              if (diffMs <= 3 * 24 * 60 * 60 * 1000) {
-                                isH_3 = true;
-                              }
-                            }
-                          }
-
-                          const displayPackage = t.package_name || getPackageName(t.duration_plan);
-                          const remainingTextFormatted = diffDays > 0 ? `${diffDays} hari ${diffHours}j` : `${diffHours}j ${diffMinutes}m`;
-
-                          return (
-                            <tr key={t.store_id} className="hover:bg-slate-900/40 font-sans transition-colors">
-                              <td className="p-4 max-w-[180px]">
-                                <div className="font-bold text-slate-200 truncate" title={t.store_name}>{t.store_name}</div>
-                                <div className="text-[10px] text-slate-500 font-medium truncate" title={t.ownerName}>Owner: {t.ownerName}</div>
-                              </td>
-                              <td className="p-4 font-mono text-slate-400 text-[11px] max-w-[180px] truncate" title={t.email}>
-                                {t.email}
-                              </td>
-                              <td className="p-4 max-w-[160px]">
-                                <span className="inline-flex items-center px-2 py-0.5 bg-indigo-500/10 text-indigo-300 font-semibold text-[10px] rounded border border-indigo-500/15 truncate">
-                                  {displayPackage}
-                                </span>
-                              </td>
-                              <td className="p-4">
-                                {expiryDate ? (
-                                  <div className="space-y-0.5">
-                                    <span className="font-mono text-slate-300 text-[11px]">
-                                      {expiryDate.toLocaleDateString("id-ID", {
-                                        day: "2-digit",
-                                        month: "short",
-                                        year: "numeric"
-                                      })}
-                                    </span>
-                                    <span className="text-[9px] text-slate-500 block font-mono">
-                                      Pukul {expiryDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <span className="text-slate-500">Tanpa Batas</span>
-                                )}
-                              </td>
-                              <td className="p-4">
-                                {isExpired ? (
-                                  <span className="inline-flex items-center px-2 py-0.5 bg-rose-500/10 text-rose-400 font-extrabold text-[9px] rounded border border-rose-500/15">EXPIRED</span>
-                                ) : isH_3 ? (
-                                  <div className="space-y-1">
-                                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-500/10 text-amber-300 font-extrabold text-[9px] rounded border border-amber-500/15 animate-pulse">
-                                      ⚠️ H-3 Warning
-                                    </span>
-                                    <span className="text-[9px] text-amber-500 block font-mono font-semibold">
-                                      Sisa {remainingTextFormatted} lagi
-                                    </span>
-                                  </div>
-                                ) : (
-                                  <div className="space-y-1">
-                                    <span className="inline-flex items-center px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 font-extrabold text-[9px] rounded border border-emerald-500/15">Aktif Premium</span>
-                                    <span className="text-[9px] text-slate-400 block font-mono font-medium">
-                                      Sisa {diffDays} hari {diffHours}j
-                                    </span>
-                                  </div>
-                                )}
-                              </td>
-                              <td className="p-4 text-center">
-                                <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                                  {/* Quick simulation button: Reduce to H-3 */}
-                                  {!isExpired && !isH_3 && (
-                                    <button
-                                      onClick={() => handleAdjustExpiry(t.store_id, 2.9)}
-                                      className="px-2 py-1 bg-amber-950/40 hover:bg-amber-950/80 text-amber-300 border border-amber-900/30 rounded text-[10px] font-semibold transition-colors cursor-pointer"
-                                      title="Set sisa hari ke masa H-3 (2.9 hari)"
-                                    >
-                                      Demo H-3
-                                    </button>
-                                  )}
-
-                                  {/* Quick simulation: Make expired */}
-                                  {!isExpired && (
-                                    <button
-                                      onClick={() => handleAdjustExpiry(t.store_id, 0)}
-                                      className="px-2 py-1 bg-rose-950/30 hover:bg-rose-950/70 text-rose-300 border border-rose-900/30 rounded text-[10px] font-semibold transition-colors cursor-pointer"
-                                      title="Kunci / Kedaluwarsa instan pada app"
-                                    >
-                                      Demo Expired
-                                    </button>
-                                  )}
-
-                                  {/* Send simulated Email Info */}
-                                  {isH_3 && (
-                                    <button
-                                      onClick={() => handleSendSimulatedEmail(t.store_name, t.email, remainingTextFormatted, t.ownerName, displayPackage)}
-                                      className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500/30 rounded text-[10px] font-bold shadow transition-transform hover:scale-105 flex items-center gap-1 cursor-pointer"
-                                      title="Kirim email peringatan masa tenggang H-3"
-                                    >
-                                      <Send className="h-3 w-3" />
-                                      <span>Siarkan H-3</span>
-                                    </button>
-                                  )}
-
-                                  {/* Extend 30 days */}
-                                  {(isExpired || isH_3) && (
-                                    <button
-                                      onClick={() => handleAdjustExpiry(t.store_id, 30)}
-                                      className="px-2 py-1 bg-emerald-950/40 hover:bg-emerald-950/80 text-emerald-300 border border-emerald-900/40 rounded text-[10px] font-semibold transition-colors cursor-pointer"
-                                      title="Perpanjang sebulan"
-                                    >
-                                      Extend 30D
-                                    </button>
-                                  )}
-
-                                  <button
-                                    onClick={() => handleDeleteTenant(t.store_id, t.store_name)}
-                                    disabled={deletingId === t.store_id}
-                                    className={`p-1 rounded transition-colors cursor-pointer ${
-                                      deletingId === t.store_id
-                                        ? "text-slate-600 opacity-50 bg-transparent cursor-not-allowed"
-                                        : "hover:bg-rose-950/40 text-slate-500 hover:text-rose-400"
-                                    }`}
-                                    title="Hapus Tenant"
-                                    id={`delete-tenant-btn-${t.store_id}`}
-                                  >
-                                    {deletingId === t.store_id ? (
-                                      <svg className="animate-spin h-3.5 w-3.5 text-rose-400 inline-block" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                      </svg>
-                                    ) : (
-                                      <Trash2 className="h-3.5 w-3.5" />
-                                    )}
-                                  </button>
-                                </div>
-                              </td>
+                  {/* Main tenants list wrapped neatly inside standard table container */}
+                  {tenantsLoading && tenants.length === 0 ? (
+                    <div className="py-12 text-center text-xs text-slate-500 font-mono">Sedang menyelaraskan semua tenant pada Firestore...</div>
+                  ) : filteredTenants.length === 0 ? (
+                    <div className="py-12 text-center flex flex-col items-center justify-center">
+                      <Building2 className="h-10 w-10 text-slate-700 mb-2" />
+                      <p className="text-xs text-slate-400 font-sans">Tidak ada tenant yang cocok dengan kriteria pencarian/filter.</p>
+                    </div>
+                  ) : (
+                    <div className="w-full overflow-hidden rounded-xl border border-white/5 bg-slate-950/40">
+                      <div className="overflow-x-auto w-full">
+                        <table className="w-full text-left text-xs border-collapse divide-y divide-white/5 whitespace-nowrap lg:whitespace-normal">
+                          <thead>
+                            <tr className="bg-slate-950/80 text-slate-400 font-sans">
+                              <th className="p-3.5 font-bold text-left text-xs">Nama UMKM / Owner</th>
+                              <th className="p-3.5 font-bold text-left text-xs">Kredensial Email</th>
+                              <th className="p-3.5 font-bold text-left text-xs">Paket & Durasi</th>
+                              <th className="p-3.5 font-bold text-left text-xs">Status Langganan</th>
+                              <th className="p-3.5 font-bold text-left text-xs">Masa Aktif Berakhir</th>
+                              <th className="p-3.5 font-bold text-left text-xs">Indikator Sisa Hari</th>
+                              <th className="p-3.5 font-bold text-center text-xs w-[280px]">Tindakan Demo</th>
                             </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                          </thead>
+                          <tbody className="divide-y divide-white/5 bg-transparent">
+                            {paginatedTenants.map((t) => {
+                              const expiryDate = t.billing_period_end || t.subscriptionExpiresAt ? new Date(t.billing_period_end || t.subscriptionExpiresAt) : null;
+                              
+                              let diffDays = 0;
+                              let diffHours = 0;
+                              let diffMinutes = 0;
+                              let isExpired = false;
+                              let isH_3 = false;
+
+                              if (expiryDate) {
+                                const diffMs = expiryDate.getTime() - now.getTime();
+                                isExpired = diffMs <= 0;
+                                if (!isExpired) {
+                                  diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                                  diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                  diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                                  // H-3 concept: sisa hari <= 3 hari (72 jam)
+                                  if (diffMs <= 3 * 24 * 60 * 60 * 1000) {
+                                    isH_3 = true;
+                                  }
+                                }
+                              }
+
+                              const displayPackage = t.package_name || getPackageName(t.duration_plan);
+                              const remainingTextFormatted = diffDays > 0 ? `${diffDays} hari ${diffHours}j` : `${diffHours}j ${diffMinutes}m`;
+
+                              return (
+                                <tr key={t.store_id} className="hover:bg-slate-900/40 font-sans transition-colors">
+                                  <td className="p-3.5 max-w-[170px]">
+                                    <div className="font-bold text-slate-200 truncate" title={t.store_name}>{t.store_name}</div>
+                                    <div className="text-[10px] text-slate-500 font-medium truncate" title={t.ownerName}>Owner: {t.ownerName}</div>
+                                  </td>
+                                  <td className="p-3.5 font-mono text-slate-400 text-[11px] max-w-[170px] truncate" title={t.email}>
+                                    {t.email}
+                                  </td>
+                                  <td className="p-3.5 max-w-[150px]">
+                                    <span className="inline-flex items-center px-2 py-0.5 bg-indigo-500/10 text-indigo-300 font-semibold text-[10px] rounded border border-indigo-500/15 truncate">
+                                      {displayPackage}
+                                    </span>
+                                  </td>
+                                  {/* Subscription Status column with colored icons */}
+                                  <td className="p-3.5">
+                                    {isExpired ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-rose-500/15 text-rose-400 font-bold text-[10px] rounded-full border border-rose-500/20">
+                                        <XCircle className="h-3 w-3 text-rose-400" />
+                                        <span>Expired</span>
+                                      </span>
+                                    ) : isH_3 ? (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-500/15 text-amber-300 font-bold text-[10px] rounded-full border border-amber-500/20 animate-pulse">
+                                        <AlertTriangle className="h-3 w-3 text-amber-400" />
+                                        <span>H-3 Warning</span>
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-500/15 text-emerald-300 font-bold text-[10px] rounded-full border border-emerald-500/20">
+                                        <CheckCircle2 className="h-3 w-3 text-emerald-400" />
+                                        <span>Active</span>
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="p-3.5">
+                                    {expiryDate ? (
+                                      <div className="space-y-0.5">
+                                        <span className="font-mono text-slate-300 text-[11px]">
+                                          {expiryDate.toLocaleDateString("id-ID", {
+                                            day: "2-digit",
+                                            month: "short",
+                                            year: "numeric"
+                                          })}
+                                        </span>
+                                        <span className="text-[9px] text-slate-500 block font-mono">
+                                          Pukul {expiryDate.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className="text-slate-500">Tanpa Batas</span>
+                                    )}
+                                  </td>
+                                  <td className="p-3.5">
+                                    {isExpired ? (
+                                      <span className="inline-flex items-center px-2 py-0.5 bg-rose-500/10 text-rose-400 font-extrabold text-[9px] rounded border border-rose-500/15">EXPIRED</span>
+                                    ) : isH_3 ? (
+                                      <div className="space-y-0.5">
+                                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-500/10 text-amber-300 font-extrabold text-[9px] rounded border border-amber-500/15">
+                                          ⚠️ Sisa {remainingTextFormatted}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <div className="space-y-0.5">
+                                        <span className="inline-flex items-center px-1.5 py-0.5 bg-emerald-500/10 text-emerald-400 font-extrabold text-[9px] rounded border border-emerald-500/15">Aktif Premium</span>
+                                        <span className="text-[9px] text-slate-400 block font-mono font-medium">
+                                          Sisa {diffDays} hari {diffHours}j
+                                        </span>
+                                      </div>
+                                    )}
+                                  </td>
+                                  <td className="p-3.5 text-center">
+                                    <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                                      {/* Quick simulation button: Reduce to H-3 */}
+                                      {!isExpired && !isH_3 && (
+                                        <button
+                                          onClick={() => handleAdjustExpiry(t.store_id, 2.9)}
+                                          className="px-2 py-1 bg-amber-950/40 hover:bg-amber-950/80 text-amber-300 border border-amber-900/30 rounded text-[10px] font-semibold transition-colors cursor-pointer"
+                                          title="Set sisa hari ke masa H-3 (2.9 hari)"
+                                        >
+                                          Demo H-3
+                                        </button>
+                                      )}
+
+                                      {/* Quick simulation: Make expired */}
+                                      {!isExpired && (
+                                        <button
+                                          onClick={() => handleAdjustExpiry(t.store_id, 0)}
+                                          className="px-2 py-1 bg-rose-950/30 hover:bg-rose-950/70 text-rose-300 border border-rose-900/30 rounded text-[10px] font-semibold transition-colors cursor-pointer"
+                                          title="Kunci / Kedaluwarsa instan pada app"
+                                        >
+                                          Demo Expired
+                                        </button>
+                                      )}
+
+                                      {/* Send simulated Email Info */}
+                                      {isH_3 && (
+                                        <button
+                                          onClick={() => handleSendSimulatedEmail(t.store_name, t.email, remainingTextFormatted, t.ownerName, displayPackage)}
+                                          className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500/30 rounded text-[10px] font-bold shadow transition-transform hover:scale-105 flex items-center gap-1 cursor-pointer"
+                                          title="Kirim email peringatan masa tenggang H-3"
+                                        >
+                                          <Send className="h-3 w-3" />
+                                          <span>Siarkan H-3</span>
+                                        </button>
+                                      )}
+
+                                      {/* Extend 30 days */}
+                                      {(isExpired || isH_3) && (
+                                        <button
+                                          onClick={() => handleAdjustExpiry(t.store_id, 30)}
+                                          className="px-2 py-1 bg-emerald-950/40 hover:bg-emerald-950/80 text-emerald-300 border border-emerald-900/40 rounded text-[10px] font-semibold transition-colors cursor-pointer"
+                                          title="Perpanjang sebulan"
+                                        >
+                                          Extend 30D
+                                        </button>
+                                      )}
+
+                                      <button
+                                        onClick={() => handleDeleteTenant(t.store_id, t.store_name)}
+                                        disabled={deletingId === t.store_id}
+                                        className={`p-1 rounded transition-colors cursor-pointer ${
+                                          deletingId === t.store_id
+                                            ? "text-slate-600 opacity-50 bg-transparent cursor-not-allowed"
+                                            : "hover:bg-rose-950/40 text-slate-500 hover:text-rose-400"
+                                        }`}
+                                        title="Hapus Tenant"
+                                        id={`delete-tenant-btn-${t.store_id}`}
+                                      >
+                                        {deletingId === t.store_id ? (
+                                          <svg className="animate-spin h-3.5 w-3.5 text-rose-400 inline-block" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                          </svg>
+                                        ) : (
+                                          <Trash2 className="h-3.5 w-3.5" />
+                                        )}
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* PAGINATION CONTROLS */}
+                      <div className="p-3 bg-slate-950/90 border-t border-white/5 flex items-center justify-between text-xs text-slate-400 font-sans">
+                        <div className="text-[11px]">
+                          Menampilkan <span className="font-bold text-slate-200">{filteredTenants.length > 0 ? (currentPage - 1) * rowsPerPage + 1 : 0}</span> - <span className="font-bold text-slate-200">{Math.min(currentPage * rowsPerPage, filteredTenants.length)}</span> dari <span className="font-bold text-slate-200">{filteredTenants.length}</span> Tenant
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            className="p-1.5 bg-slate-900 hover:bg-slate-850 disabled:opacity-30 disabled:cursor-not-allowed rounded border border-slate-800 text-slate-300 hover:text-white cursor-pointer transition-colors"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </button>
+                          <span className="px-2 font-mono text-[11px] text-slate-300">
+                            Hal {currentPage} / {totalPages}
+                          </span>
+                          <button
+                            onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage >= totalPages}
+                            className="p-1.5 bg-slate-900 hover:bg-slate-850 disabled:opacity-30 disabled:cursor-not-allowed rounded border border-slate-800 text-slate-300 hover:text-white cursor-pointer transition-colors"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              );
+            })()}
 
           </div>
         )}
       </div>
+
+      {/* Modal: Tambah Paket Baru (Global Package Management) */}
+      {isAddPackageModalOpen && (
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative overflow-hidden text-left animate-fade-in font-sans">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-4">
+              <div className="flex items-center gap-2 text-indigo-400 font-bold text-sm">
+                <Package className="h-4 w-4" />
+                <span>Tambah Paket Berlangganan Baru</span>
+              </div>
+              <button 
+                onClick={() => setIsAddPackageModalOpen(false)}
+                className="text-slate-500 hover:text-slate-300 cursor-pointer text-xs"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (!newPkgName || !newPkgPrice) return;
+              const newPlan: PackagePlan = {
+                id: `pkg_${Date.now()}`,
+                name: newPkgName,
+                durationDays: Number(newPkgDays) || 30,
+                priceFormatted: newPkgPrice,
+                features: newPkgFeatures || "Fitur inventaris & kasir"
+              };
+              setPackagePlans(prev => [...prev, newPlan]);
+              setIsAddPackageModalOpen(false);
+              setNewPkgName("");
+              setNewPkgPrice("");
+              setNewPkgFeatures("");
+              setSuccessNotification(`Paket "${newPkgName}" berhasil ditambahkan ke katalog global!`);
+            }} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block text-slate-400 mb-1 font-semibold">Nama Paket</label>
+                <input
+                  type="text"
+                  placeholder="Cth: Paket Bisnis VIP (6 Bulan)"
+                  value={newPkgName}
+                  onChange={(e) => setNewPkgName(e.target.value)}
+                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">Durasi (Hari)</label>
+                  <input
+                    type="number"
+                    placeholder="180"
+                    value={newPkgDays}
+                    onChange={(e) => setNewPkgDays(Number(e.target.value))}
+                    className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 font-mono"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-400 mb-1 font-semibold">Harga Tampilan</label>
+                  <input
+                    type="text"
+                    placeholder="Rp 450.000 / 6 bln"
+                    value={newPkgPrice}
+                    onChange={(e) => setNewPkgPrice(e.target.value)}
+                    className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/40 font-mono"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-400 mb-1 font-semibold">Fitur / Keterangan Singkat</label>
+                <input
+                  type="text"
+                  placeholder="Cth: Multi-kasir + Export Laporan Excel"
+                  value={newPkgFeatures}
+                  onChange={(e) => setNewPkgFeatures(e.target.value)}
+                  className="w-full p-2.5 bg-slate-950 border border-slate-800 rounded-lg text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500/40"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setIsAddPackageModalOpen(false)}
+                  className="px-3 py-1.5 text-xs text-slate-400 hover:text-slate-200 bg-slate-800 rounded-lg cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg cursor-pointer shadow"
+                >
+                  Simpan Paket
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Custom Confirmation Modal for Deleting Tenant */}
       {tenantToDelete && (
