@@ -17,6 +17,9 @@ export interface StoreDoc {
   status_langganan: SubscriptionStatus;
   billing_period_end?: string; // Optional ISO date string
   subscriptionExpiresAt?: string; // Optional alias for compatibility
+  package_name?: string; // e.g. "Paket Reguler (30 Hari)"
+  duration_plan?: string; // e.g. "30", "90", "365", "3_days"
+  created_at?: string;
 }
 
 export interface ProductDoc {

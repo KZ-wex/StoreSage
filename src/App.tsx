@@ -42,44 +42,83 @@ function MainAppShell() {
   const [products, setProducts] = useState<ProductDoc[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [systime, setSystime] = useState(new Date());
-  const [warningMsg, setWarningMsg] = useState<string | null>(null);
+  const [warningMsg, setWarningMsg] = useState<{
+    daysLeft: number;
+    hoursLeft: number;
+    minutesLeft: number;
+    remainingText: string;
+    packageName: string;
+    expiryDateFormatted: string;
+    email: string;
+  } | null>(null);
 
-  // Check subscription parameters for H-2 notifications
+  // Check subscription parameters for H-3 notifications (≤ 3 hari / 72 jam)
   useEffect(() => {
-    if (storeData?.billing_period_end || storeData?.subscriptionExpiresAt || isNearExpiry) {
-      const checkInterval = setInterval(() => {
-        const expiryStr = storeData?.subscriptionExpiresAt || storeData?.billing_period_end;
-        if (!expiryStr) {
-          if (isNearExpiry) {
-            setWarningMsg(
-              `Masa aktif berlangganan SaaS UMKM Anda akan berakhir kurang dari 48 jam lagi. Silakan melakukan koordinasi perpanjangan Paket ke Admin untuk menghindari pengosongan atau penangguhan sistem.`
-            );
-          } else {
-            setWarningMsg(null);
-          }
-          return;
-        }
-        const expiry = new Date(expiryStr);
-        const now = new Date();
-        const diffMs = expiry.getTime() - now.getTime();
-        
-        if (isNearExpiry || (diffMs > 0 && diffMs <= 2 * 24 * 60 * 60 * 1000)) {
-          const hours = Math.ceil(diffMs / (1000 * 60 * 60));
-          const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-          const remainingText = diffMs > 0 ? (days > 0 ? `${days} hari lagi` : `${hours} jam lagi`) : "segera";
-          setWarningMsg(
-            `Masa aktif berlangganan SaaS UMKM Anda akan berakhir dalam ${remainingText}. Silakan melakukan koordinasi perpanjangan Paket ke Admin untuk menghindari pengosongan atau penangguhan sistem.`
-          );
+    const checkExpiry = () => {
+      const expiryStr = storeData?.subscriptionExpiresAt || storeData?.billing_period_end;
+      if (!expiryStr) {
+        if (isNearExpiry) {
+          setWarningMsg({
+            daysLeft: 2,
+            hoursLeft: 23,
+            minutesLeft: 59,
+            remainingText: "kurang dari 3 hari lagi",
+            packageName: storeData?.package_name || "Paket Reguler UMKM",
+            expiryDateFormatted: "Segera",
+            email: userData?.email || user?.email || "-"
+          });
         } else {
           setWarningMsg(null);
         }
-      }, 5000); // Check every 5 seconds for simulation responsiveness
+        return;
+      }
       
-      return () => clearInterval(checkInterval);
-    } else {
-      setWarningMsg(null);
-    }
-  }, [storeData, isNearExpiry]);
+      const expiry = new Date(expiryStr);
+      const now = new Date();
+      const diffMs = expiry.getTime() - now.getTime();
+      
+      // H-3 threshold: diffMs <= 3 days (72 hours) and still active
+      if (isNearExpiry || (diffMs > 0 && diffMs <= 3 * 24 * 60 * 60 * 1000)) {
+        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        const remainingText = days > 0 ? `${days} hari ${hours} jam` : `${hours} jam ${minutes} menit`;
+        
+        let pkgName = storeData?.package_name;
+        if (!pkgName) {
+          if (storeData?.duration_plan === "30") pkgName = "Paket Reguler (30 Hari)";
+          else if (storeData?.duration_plan === "90") pkgName = "Paket Hemat (90 Hari / 3 Bulan)";
+          else if (storeData?.duration_plan === "365") pkgName = "Paket Tahunan (365 Hari / 12 Bulan)";
+          else if (storeData?.duration_plan === "3_days") pkgName = "Paket Uji Coba H-3 (3 Hari)";
+          else if (storeData?.duration_plan === "2_days") pkgName = "Paket Uji Coba H-2 (2 Hari)";
+          else if (storeData?.duration_plan === "5_mins") pkgName = "Simulasi Kilat (5 Menit)";
+          else pkgName = "Paket Reguler UMKM (30 Hari)";
+        }
+
+        setWarningMsg({
+          daysLeft: days,
+          hoursLeft: hours,
+          minutesLeft: minutes,
+          remainingText,
+          packageName: pkgName,
+          expiryDateFormatted: expiry.toLocaleDateString("id-ID", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+          }),
+          email: userData?.email || user?.email || "-"
+        });
+      } else {
+        setWarningMsg(null);
+      }
+    };
+
+    checkExpiry();
+    const checkInterval = setInterval(checkExpiry, 5000); // Poll every 5s for live simulation updates
+    return () => clearInterval(checkInterval);
+  }, [storeData, isNearExpiry, userData, user]);
 
   // Keep time updated
   useEffect(() => {
@@ -349,11 +388,35 @@ function MainAppShell() {
         {/* Dynamic Inner page views */}
         <div className="p-6 md:p-8 flex-1 overflow-y-auto font-sans text-white bg-[#121212]" id="page-content-wrapper">
           {warningMsg && (
-            <div className="mb-6 p-4 bg-[#2D1F10] border-l-4 border-amber-500 rounded-lg flex items-start gap-3.5 text-amber-300 shadow-md animate-fade-in" id="billing-warning-alert">
-              <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500 mt-0.5 animate-bounce" />
-              <div className="space-y-1 font-sans">
-                <span className="font-extrabold text-xs text-amber-400 uppercase tracking-wide block">Pengumuman Penting H-2 Pembayaran</span>
-                <p className="text-xs text-amber-200 font-medium leading-relaxed">{warningMsg}</p>
+            <div className="mb-6 p-4 bg-gradient-to-r from-amber-950/50 via-slate-900/90 to-slate-900/90 border border-amber-500/30 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-4 text-amber-200 shadow-xl animate-fade-in relative overflow-hidden" id="billing-warning-alert">
+              <div className="flex items-start gap-3.5">
+                <div className="h-10 w-10 bg-amber-500/15 border border-amber-500/30 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+                  <AlertTriangle className="h-5 w-5 text-amber-400 animate-pulse" />
+                </div>
+                <div className="space-y-1 font-sans">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-extrabold text-xs text-amber-400 uppercase tracking-wide">
+                      ⚠️ Peringatan Masa Tenggang Berlangganan (H-3)
+                    </span>
+                    <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold rounded-full border border-amber-500/30">
+                      Sisa {warningMsg.remainingText}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed font-normal">
+                    Masa aktif akun UMKM <strong className="text-white font-semibold">{warningMsg.email}</strong> dengan durasi <strong className="text-amber-300 font-semibold">{warningMsg.packageName}</strong> akan berakhir pada <span className="text-amber-200 font-mono">{warningMsg.expiryDateFormatted}</span>.
+                  </p>
+                  <p className="text-[11px] text-slate-400">
+                    Segera hubungi Administrator StoreSage untuk koordinasi perpanjangan paket agar akses kasir & data produk tidak terkunci.
+                  </p>
+                </div>
+              </div>
+              <div className="shrink-0 flex items-center gap-2 self-start md:self-center">
+                <button
+                  onClick={() => setActiveTab("store")}
+                  className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-lg transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span>Cek Status Toko</span>
+                </button>
               </div>
             </div>
           )}

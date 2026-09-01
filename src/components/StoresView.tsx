@@ -67,6 +67,26 @@ export default function StoresView({ userData, storeData, userEmail }: StoresVie
             <div>{getSubBadge(storeData?.status_langganan || "active")}</div>
           </div>
 
+          <div className="p-3 bg-[#121212] rounded-xl flex items-center justify-between border border-[#2C2C2E]/60">
+            <span className="text-xs text-[#8C8C8E] font-semibold uppercase font-sans">Paket & Durasi</span>
+            <span className="font-semibold text-xs text-indigo-300">
+              {storeData?.package_name || (storeData?.duration_plan === "90" ? "Paket Hemat (90 Hari)" : storeData?.duration_plan === "365" ? "Paket Tahunan (365 Hari)" : "Paket Reguler UMKM (30 Hari)")}
+            </span>
+          </div>
+
+          {(storeData?.billing_period_end || storeData?.subscriptionExpiresAt) && (
+            <div className="p-3 bg-[#121212] rounded-xl flex items-center justify-between border border-[#2C2C2E]/60">
+              <span className="text-xs text-[#8C8C8E] font-semibold uppercase font-sans">Masa Aktif Berakhir</span>
+              <span className="font-mono text-xs text-slate-300">
+                {new Date(storeData.billing_period_end || storeData.subscriptionExpiresAt!).toLocaleDateString("id-ID", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric"
+                })}
+              </span>
+            </div>
+          )}
+
           <div className="pt-2 p-3 bg-[#121212] border border-[#2C2C2E]/80 rounded-xl flex items-start gap-2.5">
             <AlertOctagon className="h-4 w-4 text-[#00E5FF] shrink-0 mt-0.5" />
             <p className="text-[11px] text-[#8C8C8E] leading-relaxed font-sans">

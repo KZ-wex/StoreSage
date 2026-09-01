@@ -56,7 +56,28 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
   const [tenants, setTenants] = useState<any[]>([]);
   const [tenantsLoading, setTenantsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [emailLogs, setEmailLogs] = useState<{ id: string; storeName: string; email: string; timestamp: Date; message: string }[]>([]);
+  const [emailLogs, setEmailLogs] = useState<{
+    id: string;
+    storeName: string;
+    email: string;
+    ownerName?: string;
+    packageName?: string;
+    remainingText?: string;
+    timestamp: Date;
+    message: string;
+    isAutoTriggered?: boolean;
+  }[]>([]);
+
+  // Package name helper
+  const getPackageName = (plan?: string, fallback = "Paket Reguler (30 Hari)") => {
+    if (plan === "30") return "Paket Reguler (30 Hari)";
+    if (plan === "90") return "Paket Hemat (90 Hari / 3 Bulan)";
+    if (plan === "365") return "Paket Tahunan (365 Hari / 12 Bulan)";
+    if (plan === "3_days") return "Paket Uji Coba H-3 (3 Hari)";
+    if (plan === "2_days") return "Paket Uji Coba H-2 (2 Hari)";
+    if (plan === "5_mins") return "Simulasi Kilat (5 Menit)";
+    return plan || fallback;
+  };
   
   // Custom dialog confirmations and modern notifications
   const [tenantToDelete, setTenantToDelete] = useState<{ id: string; name: string } | null>(null);
@@ -93,12 +114,12 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
         ...uDoc.data()
       })) as any[];
 
-          const parsedStores = storesSnapshot.docs
+      const parsedStores = (storesSnapshot.docs
         .map(docSnapshot => {
           const storeData = docSnapshot.data();
           const storeId = docSnapshot.id;
           // find owner user
-          const associatedUser = parsedUsers.find(u => u.store_id === storeId && u.role === "owner") || 
+          const associatedUser = parsedUsers.find(u => u.store_id === storeId && (u.role === "owner" || u.role === "tenant_admin" || u.role === "admin")) || 
                                  parsedUsers.find(u => u.store_id === storeId);
           
           return {
@@ -108,9 +129,56 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
             email: associatedUser?.email || "N/A"
           };
         })
-        .filter(store => store.store_id !== "storesage_root_admin");
+        .filter(store => store.store_id !== "storesage_root_admin")) as any[];
 
       setTenants(parsedStores);
+
+      // Automatically scan for tenants in H-3 grace period (<= 3 days / 72 hours) and generate auto-broadcast logs
+      const now = new Date();
+      const autoLogs: {
+        id: string;
+        storeName: string;
+        email: string;
+        ownerName?: string;
+        packageName?: string;
+        remainingText?: string;
+        timestamp: Date;
+        message: string;
+        isAutoTriggered?: boolean;
+      }[] = [];
+
+      parsedStores.forEach(s => {
+        const expiryDate = s.billing_period_end || s.subscriptionExpiresAt ? new Date(s.billing_period_end || s.subscriptionExpiresAt) : null;
+        if (expiryDate) {
+          const diffMs = expiryDate.getTime() - now.getTime();
+          const isExpired = diffMs <= 0;
+          const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+          const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+          // Condition: in H-3 window (sisa <= 3 hari / 72 jam)
+          if (!isExpired && diffMs <= 3 * 24 * 60 * 60 * 1000) {
+            const remainingText = diffDays > 0 ? `${diffDays} hari ${diffHours} jam` : `${diffHours} jam ${diffMinutes} menit`;
+            const pkgName = s.package_name || getPackageName(s.duration_plan);
+            autoLogs.push({
+              id: `auto_h3_${s.store_id}`,
+              storeName: s.store_name,
+              email: s.email,
+              ownerName: s.ownerName,
+              packageName: pkgName,
+              remainingText: `Sisa ${remainingText} (Masa Tenggang H-3)`,
+              timestamp: new Date(),
+              isAutoTriggered: true,
+              message: `[NOTIFIKASI OTOMATIS H-3] Yth. ${s.ownerName} (${s.email}) - Toko: ${s.store_name}. Paket langganan ${pkgName} Anda bersisa ${remainingText}. Mohon segera hubungi Administrator untuk perpanjangan paket agar layanan kasir & inventaris tetap aktif.`
+            });
+          }
+        }
+      });
+
+      setEmailLogs(prev => {
+        const manualLogs = prev.filter(p => !p.id.startsWith("auto_h3_"));
+        return [...autoLogs, ...manualLogs];
+      });
     } catch (err) {
       console.error("Gagal memuat daftar tenant: ", err);
     } finally {
@@ -141,23 +209,35 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
         status_langganan: daysOffset <= 0 ? "trial" : "active"
       });
       
-      loadTenants();
+      await loadTenants();
     } catch (err) {
       console.error("Gagal menyesuaikan masa aktif: ", err);
     }
   };
 
-  // Simulate Trigger H-2 Email notification
-  const handleSendSimulatedEmail = (storeNameAddress: string, managerEmail: string, daysRemainingValue: number | string) => {
-    const message = `[NOTIFICATION H-2] Yth. Pemilik ${storeNameAddress} (${managerEmail}), masa aktif langganan SaaS StoreSage Anda bersisa ${daysRemainingValue} hari lagi. Segera hubungi Admin untuk memperpanjang paket Agar menghindari penguncian sistem.`;
+  // Simulate Trigger H-3 Email notification
+  const handleSendSimulatedEmail = (
+    storeNameAddress: string, 
+    managerEmail: string, 
+    daysRemainingValue: number | string,
+    ownerNameVal?: string,
+    packageNameVal?: string
+  ) => {
+    const pkg = packageNameVal || "Paket UMKM StoreSage";
+    const owner = ownerNameVal || "Pemilik UMKM";
+    const message = `[PERINGATAN MASA TENGGANG H-3] Yth. ${owner} (${managerEmail}) - Toko: ${storeNameAddress}. Masa aktif langganan ${pkg} Anda tersisa ${daysRemainingValue}. Mohon segera hubungi Admin StoreSage untuk perpanjangan paket agar menghindari penguncian sistem.`;
     const newLog = {
       id: "log_" + Math.random().toString(36).substring(2, 9),
       storeName: storeNameAddress,
       email: managerEmail,
+      ownerName: owner,
+      packageName: pkg,
+      remainingText: `Sisa ${daysRemainingValue}`,
       timestamp: new Date(),
+      isAutoTriggered: false,
       message
     };
-    setEmailLogs(prev => [newLog, ...prev]);
+    setEmailLogs(prev => [newLog, ...prev.filter(l => l.id !== newLog.id)]);
   };
 
   const handleDeleteTenant = (storeId: string, storeName: string) => {
@@ -240,8 +320,11 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
       }
       secondaryApp = initializeApp(realConfig, appName);
       const secondaryAuth = getAuth(secondaryApp);
-      const dbId = (firebaseConfig as any).firestoreDatabaseId;
-      const secondaryDb = dbId ? getSecondaryFirestore(secondaryApp, dbId) : getSecondaryFirestore(secondaryApp);
+      const secondaryDb = firebaseConfig.projectId === "storesage-q"
+        ? getSecondaryFirestore(secondaryApp)
+        : (firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== "(default)"
+          ? getSecondaryFirestore(secondaryApp, firebaseConfig.firestoreDatabaseId)
+          : getSecondaryFirestore(secondaryApp));
 
       // 2. Create secondary tenant user account in Firebase Auth
       let uid: string = "";
@@ -278,11 +361,15 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
         billingEnd.setDate(billingEnd.getDate() + 90);
       } else if (durationOption === "365") {
         billingEnd.setDate(billingEnd.getDate() + 365);
+      } else if (durationOption === "3_days") {
+        billingEnd.setTime(billingEnd.getTime() + 3 * 24 * 60 * 60 * 1000);
       } else if (durationOption === "2_days") {
         billingEnd.setTime(billingEnd.getTime() + 2 * 24 * 60 * 60 * 1000);
       } else if (durationOption === "5_mins") {
         billingEnd.setTime(billingEnd.getTime() + 5 * 60 * 1000);
       }
+
+      const assignedPackageName = getPackageName(durationOption);
 
       // 4. FIRESTORE WRITE LOGIC:
       // A. Write tenant profile document to 'tenants' collection using UID
@@ -295,6 +382,8 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
           store_name: storeName,
           owner_name: ownerName,
           email: email,
+          package_name: assignedPackageName,
+          duration_plan: durationOption,
           createdAt: new Date().toISOString()
         });
       } catch (tenantErr: any) {
@@ -320,7 +409,9 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
         await setDoc(storeRef, {
           store_name: storeName,
           status_langganan: "active",
-          billing_period_end: billingEnd.toISOString()
+          billing_period_end: billingEnd.toISOString(),
+          package_name: assignedPackageName,
+          duration_plan: durationOption
         });
       } catch (storeErr: any) {
         handleFirestoreError(storeErr, OperationType.WRITE, `stores/${storeId}`);
@@ -689,7 +780,8 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                           <option value="30">30 Hari (Paket Reguler - 1 Bulan)</option>
                           <option value="90">90 Hari (Paket Hemat - 3 Bulan)</option>
                           <option value="365">365 Hari (Paket Setahun - 12 Bulan)</option>
-                          <option value="2_days">⚠️ Uji Coba H-2 (Aktif 2 Hari - Skenario Email Warning)</option>
+                          <option value="3_days">⚠️ Uji Coba H-3 (Aktif 3 Hari - Skenario Email Warning H-3)</option>
+                          <option value="2_days">⚠️ Uji Coba H-2 (Aktif 2 Hari)</option>
                           <option value="5_mins">⚡ Simulasi Kilat (Aktif 5 Menit - Demo Expired)</option>
                         </select>
                       </div>
@@ -767,30 +859,52 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                 </div>
 
                 {/* 2. Server Notifikasi Email StoreSage (Log Simulator) */}
-                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex flex-col justify-start space-y-3 shadow-lg flex-1">
-                  <div className="flex items-center gap-1.5 text-xs text-indigo-400 font-bold border-b border-white/10 pb-2" id="email-server-title">
-                    <Mail className="h-4.5 w-4.5 animate-pulse text-indigo-400" />
-                    <span>Notifikasi Email (Log Simulator)</span>
+                <div className="bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex flex-col justify-start space-y-3 shadow-lg flex-1" id="email-server-monitor-card">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2.5" id="email-server-title">
+                    <div className="flex items-center gap-1.5 text-xs text-indigo-400 font-bold">
+                      <Mail className="h-4.5 w-4.5 animate-pulse text-indigo-400" />
+                      <span>Notifikasi Masa Tenggang H-3 & Simulator</span>
+                    </div>
+                    <span className="text-[8.5px] uppercase tracking-wider font-mono text-emerald-400 font-bold px-1.5 py-0.5 bg-emerald-500/10 rounded border border-emerald-500/20">
+                      Otomatis H-3
+                    </span>
                   </div>
                   
                   <p className="text-[11px] text-slate-400 leading-relaxed font-normal">
-                    Saat masa tenggang tenant menyentuh batas H-2, sistem akan menyiarkan peringatan. Evaluasi daftar pesan yang keluar dari sistem:
+                    Saat masa tenggang tenant menyentuh <strong>H-3 (sisa ≤ 3 hari)</strong>, sistem otomatis mendeteksi durasi paket dan menyiarkan notifikasi. Data ditarik langsung dari indikator sisa hari pada panel pengawasan:
                   </p>
 
-                  <div className="flex-1 flex flex-col justify-end min-h-[120px]">
+                  <div className="flex-1 flex flex-col justify-end min-h-[130px]">
                     {emailLogs.length === 0 ? (
-                      <div className="h-full flex items-center justify-center p-4 border border-dashed border-slate-800 rounded-xl text-center text-[10px] text-slate-600 font-mono w-full">
-                        [Antrean Email Keluar Kosong]
+                      <div className="h-full flex flex-col items-center justify-center p-4 border border-dashed border-slate-800 rounded-xl text-center text-[10px] text-slate-500 font-mono w-full">
+                        <span>[Antrean Notifikasi Kosong]</span>
+                        <span className="text-[9px] text-slate-600 mt-0.5">Belum ada tenant dalam masa tenggang H-3 saat ini.</span>
                       </div>
                     ) : (
-                      <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1 select-text w-full">
-                        {emailLogs.slice(0, 3).map(log => (
-                          <div key={log.id} className="p-2.5 bg-slate-950 border border-indigo-950/50 rounded-lg text-[10.5px] space-y-1 animate-fade-in font-mono">
-                            <div className="flex justify-between items-center text-[8.5px] text-indigo-400 font-bold">
-                              <span className="truncate max-w-[124px]">➔ {log.email}</span>
-                              <span>{log.timestamp.toLocaleTimeString("id-ID")}</span>
+                      <div className="space-y-2 max-h-[190px] overflow-y-auto pr-1 select-text w-full">
+                        {emailLogs.slice(0, 5).map(log => (
+                          <div key={log.id} className="p-2.5 bg-slate-950/90 border border-indigo-950/60 rounded-lg text-[10.5px] space-y-1.5 animate-fade-in font-mono shadow-sm">
+                            <div className="flex justify-between items-center text-[9px] text-indigo-300 font-bold">
+                              <span className="truncate max-w-[150px]">➔ {log.email}</span>
+                              <span className="text-slate-500">{log.timestamp.toLocaleTimeString("id-ID")}</span>
                             </div>
-                            <p className="text-slate-400 leading-relaxed font-normal text-[9.5px] line-clamp-3">{log.message}</p>
+                            
+                            <div className="flex flex-wrap gap-1 text-[8.5px]">
+                              {log.packageName && (
+                                <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-300 rounded border border-indigo-500/20 font-sans font-semibold">
+                                  {log.packageName}
+                                </span>
+                              )}
+                              {log.remainingText && (
+                                <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-300 rounded border border-amber-500/20 font-sans font-semibold">
+                                  {log.remainingText}
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="text-slate-300 leading-relaxed font-sans text-[9.5px] bg-slate-900/50 p-1.5 rounded border border-white/5">
+                              {log.message}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -810,7 +924,7 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                     <Hourglass className="h-5 w-5 animate-spin-slow text-indigo-400" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-white text-sm">Panel Pengawasan Billing & H-2 Reminder</h3>
+                    <h3 className="font-bold text-white text-sm">Panel Pengawasan Billing & Peringatan H-3</h3>
                     <p className="text-[10px] text-slate-400 font-mono mt-0.5 tracking-wider uppercase">SaaS MULTI-TENANT MONITOR & EMAIL SIMULATOR</p>
                   </div>
                 </div>
@@ -840,6 +954,7 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                         <tr className="bg-slate-950/80 text-slate-400 font-sans">
                           <th className="p-4 font-bold text-left text-xs">Nama UMKM / Owner</th>
                           <th className="p-4 font-bold text-left text-xs">Kredensial Email</th>
+                          <th className="p-4 font-bold text-left text-xs">Paket & Durasi</th>
                           <th className="p-4 font-bold text-left text-xs">Masa Aktif Berakhir</th>
                           <th className="p-4 font-bold text-left text-xs">Indikator Sisa Hari</th>
                           <th className="p-4 font-bold text-center text-xs w-[280px]">Tindakan Demo</th>
@@ -847,14 +962,14 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                       </thead>
                       <tbody className="divide-y divide-white/5 bg-transparent">
                         {tenants.map((t) => {
-                          const expiryDate = t.billing_period_end ? new Date(t.billing_period_end) : null;
+                          const expiryDate = t.billing_period_end || t.subscriptionExpiresAt ? new Date(t.billing_period_end || t.subscriptionExpiresAt) : null;
                           const now = new Date();
                           
                           let diffDays = 0;
                           let diffHours = 0;
                           let diffMinutes = 0;
                           let isExpired = false;
-                          let isH_2 = false;
+                          let isH_3 = false;
 
                           if (expiryDate) {
                             const diffMs = expiryDate.getTime() - now.getTime();
@@ -863,21 +978,29 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                               diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                               diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                               diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-                              // H-2 concept: sisa hari <= 2 hari
-                              if (diffMs <= 2 * 24 * 60 * 60 * 1000) {
-                                isH_2 = true;
+                              // H-3 concept: sisa hari <= 3 hari (72 jam)
+                              if (diffMs <= 3 * 24 * 60 * 60 * 1000) {
+                                isH_3 = true;
                               }
                             }
                           }
 
+                          const displayPackage = t.package_name || getPackageName(t.duration_plan);
+                          const remainingTextFormatted = diffDays > 0 ? `${diffDays} hari ${diffHours}j` : `${diffHours}j ${diffMinutes}m`;
+
                           return (
                             <tr key={t.store_id} className="hover:bg-slate-900/40 font-sans transition-colors">
-                              <td className="p-4 max-w-[200px]">
+                              <td className="p-4 max-w-[180px]">
                                 <div className="font-bold text-slate-200 truncate" title={t.store_name}>{t.store_name}</div>
                                 <div className="text-[10px] text-slate-500 font-medium truncate" title={t.ownerName}>Owner: {t.ownerName}</div>
                               </td>
-                              <td className="p-4 font-mono text-slate-400 text-[11px] max-w-[200px] truncate" title={t.email}>
+                              <td className="p-4 font-mono text-slate-400 text-[11px] max-w-[180px] truncate" title={t.email}>
                                 {t.email}
+                              </td>
+                              <td className="p-4 max-w-[160px]">
+                                <span className="inline-flex items-center px-2 py-0.5 bg-indigo-500/10 text-indigo-300 font-semibold text-[10px] rounded border border-indigo-500/15 truncate">
+                                  {displayPackage}
+                                </span>
                               </td>
                               <td className="p-4">
                                 {expiryDate ? (
@@ -900,13 +1023,13 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                               <td className="p-4">
                                 {isExpired ? (
                                   <span className="inline-flex items-center px-2 py-0.5 bg-rose-500/10 text-rose-400 font-extrabold text-[9px] rounded border border-rose-500/15">EXPIRED</span>
-                                ) : isH_2 ? (
+                                ) : isH_3 ? (
                                   <div className="space-y-1">
                                     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-amber-500/10 text-amber-300 font-extrabold text-[9px] rounded border border-amber-500/15 animate-pulse">
-                                      ⚠️ H-2 Warning
+                                      ⚠️ H-3 Warning
                                     </span>
                                     <span className="text-[9px] text-amber-500 block font-mono font-semibold">
-                                      {diffDays > 0 ? `${diffDays} hari ` : ""}{diffHours}j {diffMinutes}m lagi
+                                      Sisa {remainingTextFormatted} lagi
                                     </span>
                                   </div>
                                 ) : (
@@ -920,14 +1043,14 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                               </td>
                               <td className="p-4 text-center">
                                 <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                                  {/* Quick simulation button: Reduce to H-2 */}
-                                  {!isExpired && !isH_2 && (
+                                  {/* Quick simulation button: Reduce to H-3 */}
+                                  {!isExpired && !isH_3 && (
                                     <button
-                                      onClick={() => handleAdjustExpiry(t.store_id, 1.9)}
+                                      onClick={() => handleAdjustExpiry(t.store_id, 2.9)}
                                       className="px-2 py-1 bg-amber-950/40 hover:bg-amber-950/80 text-amber-300 border border-amber-900/30 rounded text-[10px] font-semibold transition-colors cursor-pointer"
-                                      title="Set sisa sisa hari ke masa H-2"
+                                      title="Set sisa hari ke masa H-3 (2.9 hari)"
                                     >
-                                      Demo H-2
+                                      Demo H-3
                                     </button>
                                   )}
 
@@ -943,19 +1066,19 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
                                   )}
 
                                   {/* Send simulated Email Info */}
-                                  {isH_2 && (
+                                  {isH_3 && (
                                     <button
-                                      onClick={() => handleSendSimulatedEmail(t.store_name, t.email, diffDays === 0 ? "H-0" : diffDays)}
+                                      onClick={() => handleSendSimulatedEmail(t.store_name, t.email, remainingTextFormatted, t.ownerName, displayPackage)}
                                       className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white border border-indigo-500/30 rounded text-[10px] font-bold shadow transition-transform hover:scale-105 flex items-center gap-1 cursor-pointer"
-                                      title="Kirim email peringatan billing"
+                                      title="Kirim email peringatan masa tenggang H-3"
                                     >
                                       <Send className="h-3 w-3" />
-                                      <span>Kirim Solusi</span>
+                                      <span>Siarkan H-3</span>
                                     </button>
                                   )}
 
                                   {/* Extend 30 days */}
-                                  {(isExpired || isH_2) && (
+                                  {(isExpired || isH_3) && (
                                     <button
                                       onClick={() => handleAdjustExpiry(t.store_id, 30)}
                                       className="px-2 py-1 bg-emerald-950/40 hover:bg-emerald-950/80 text-emerald-300 border border-emerald-900/40 rounded text-[10px] font-semibold transition-colors cursor-pointer"

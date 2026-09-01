@@ -52,8 +52,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const now = new Date();
     const diffMs = expiry.getTime() - now.getTime();
     
-    // Near expiry if within 2 days (48 hours) and still positive
-    if (diffMs > 0 && diffMs <= 2 * 24 * 60 * 60 * 1000) {
+    // Near expiry if within 3 days (72 hours / H-3) and still positive
+    if (diffMs > 0 && diffMs <= 3 * 24 * 60 * 60 * 1000) {
       setIsNearExpiry(true);
     } else {
       setIsNearExpiry(false);

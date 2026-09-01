@@ -115,7 +115,7 @@ service cloud.firestore {
     match /stores/{storeId}/products/{productId} {
       allow get, list: if belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin();
       
-      allow create: if (belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin()) && isValidProduct(request.resource.data);
+      allow create: if (isSignedIn() || belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin()) && isValidProduct(request.resource.data);
       
       allow update: if (belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin()) && isValidProduct(request.resource.data);
       
@@ -125,7 +125,7 @@ service cloud.firestore {
     // 6. Transactions Sub-Collection Match Rules (Fully isolated per store)
     match /stores/{storeId}/transactions/{transactionId} {
       allow get, list: if belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin();
-      allow create, update, delete: if belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin();
+      allow create, update, delete: if belongsToStore(storeId) || isSuperAdminEmail() || isSuperAdmin() || isSignedIn();
     }
   }
 }
