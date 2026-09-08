@@ -13,7 +13,6 @@ import {
   KeyRound,
   Eye,
   EyeOff,
-  LogOut,
   Clock,
   Hourglass,
   Send,
@@ -579,18 +578,7 @@ export default function AdminCreateTenantView({ onBackToMain }: AdminCreateTenan
               <span className="text-[10px] text-indigo-400 font-mono tracking-wider font-semibold">SUPER ADMIN</span>
             </div>
           )}
-          {user ? (
-            <button
-              onClick={async () => {
-                await logout();
-                onBackToMain();
-              }}
-              className="p-2 bg-slate-900 hover:bg-rose-950/40 text-slate-400 hover:text-rose-200 border border-slate-800 hover:border-rose-900/30 font-semibold text-xs rounded-xl flex items-center gap-2 transition-all cursor-pointer"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Keluar Sesi</span>
-            </button>
-          ) : (
+          {!user && (
             <div className="hidden sm:flex items-center gap-1 text-[11px] font-mono text-slate-400 bg-slate-900/60 px-3 py-1.5 rounded-lg border border-slate-800">
               <span>SUPER ADMIN SESSION</span>
             </div>

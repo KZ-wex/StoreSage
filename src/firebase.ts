@@ -13,11 +13,10 @@ const app = initializeApp(firebaseConfigJSON);
 export const auth = getAuth(app);
 
 // Initialize Firestore
-export const db = firebaseConfigJSON.projectId === "storesage-q"
-  ? getFirestore(app)
-  : (firebaseConfigJSON.firestoreDatabaseId && firebaseConfigJSON.firestoreDatabaseId !== "(default)"
-    ? getFirestore(app, firebaseConfigJSON.firestoreDatabaseId)
-    : getFirestore(app));
+const databaseId = (firebaseConfigJSON as any).firestoreDatabaseId;
+export const db = databaseId && databaseId !== "(default)"
+  ? getFirestore(app, databaseId)
+  : getFirestore(app);
 
 // 3. Error handler standard conformity
 export enum OperationType {
